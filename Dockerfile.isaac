@@ -19,7 +19,7 @@
 # DEALINGS IN THE SOFTWARE.
 
 
-FROM nanosaur/base:humble-devel as builder
+FROM isaac_ros/base:humble-devel as builder
 
 ################ INSTALL ISAAC ROS ####################
 
@@ -45,13 +45,13 @@ RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
 
 ######### RUNTIME ISAAC ROS ######################
 
-FROM nanosaur/base:humble
-LABEL io.k8s.display-name="nanosaur perception humble"
-LABEL name="nanosaur perception humble"
-LABEL vendor="rnext.it"
+FROM isaac_ros/base:humble
+LABEL io.k8s.display-name="isaac_ros humble"
+LABEL name="isaac_ros humble"
+LABEL vendor="NVIDIA"
 LABEL version="2.0.0"
 LABEL release="N/A"
-LABEL summary="nanosaur perception humble"
+LABEL summary="isaac_ros humble"
 LABEL description="See summary"
 
 COPY --from=builder /opt/isaac_ros_ws/install /opt/isaac_ros_ws/install

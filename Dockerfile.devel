@@ -23,6 +23,9 @@ ARG BASE_DIST
 ARG CUDA_VERSION
 FROM nvidia/cuda:${CUDA_VERSION}-devel-${BASE_DIST}
 
+# L4T variables
+ENV L4T=35.1
+ENV L4T_MINOR_VERSION=1.0
 
 # Disable terminal interaction for apt
 ENV DEBIAN_FRONTEND=noninteractive
@@ -132,7 +135,7 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
 
 RUN sudo apt install -y gnupg \
     && sudo apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc \
-    && echo "deb https://repo.download.nvidia.com/jetson/common r35.1 main" >> /etc/apt/sources.list.d/nvidia-l4t-apt-source.list
+    && echo "deb https://repo.download.nvidia.com/jetson/common r${L4T} main" >> /etc/apt/sources.list.d/nvidia-l4t-apt-source.list
 
 ###############################
 

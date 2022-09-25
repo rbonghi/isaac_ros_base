@@ -1,4 +1,6 @@
-# Isaac ROS - Docker CI
+# Isaac ROS Base - Docker CI
+
+Multiplatform cross compilable Isaac ROS for Jetson and x86
 
 # Build
 
