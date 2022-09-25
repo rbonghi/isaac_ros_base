@@ -20,3 +20,13 @@ Meet nanosaur:
 ```
 docker build -t nanosaur/base:latest .
 ```
+
+# RUN
+
+```
+docker run -it --rm nvidia/cuda:11.4.1-devel-ubuntu20.04 bash
+```
+
+```
+docker run -it --rm nanosaur/base:latest bash
+```
