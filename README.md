@@ -18,3 +18,9 @@ Run
 | isaac_ros/base:humble-devel | Yes | Yes   |
 | isaac_ros/base:runtime      | Yes | Yes   |
 | isaac_ros/base:humble       | Yes | Yes   |
+
+# Test build Isaac ROS
+
+```
+docker build -t isaac_ros/packages:latest -f Dockerfile.isaac .
+```
