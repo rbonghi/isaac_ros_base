@@ -2,7 +2,7 @@
 
 Multiplatform cross compilable Isaac ROS for Jetson and x86
 
-**Note**: Repository under construction
+> **Note**: Repository under construction
 
 # Build
 
