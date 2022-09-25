@@ -23,7 +23,7 @@ FROM isaac_ros/base:humble-devel as builder
 
 ################ INSTALL ISAAC ROS ####################
 
-# Download and build nanosaur_isaac_ros
+# Download and build isaac_ros
 ENV ISAAC_ROS_WS /opt/isaac_ros_ws
 # Copy wstool isaac_ros.rosinstall
 COPY rosinstall/isaac_ros.rosinstall isaac_ros.rosinstall

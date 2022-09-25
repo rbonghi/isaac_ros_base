@@ -19,7 +19,7 @@
 # DEALINGS IN THE SOFTWARE.
 
 
-ARG BASE_IMAGE=nanosaur/base:runtime
+ARG BASE_IMAGE=isaac_ros/base:runtime
 FROM ${BASE_IMAGE}
 
 ARG ROS_PKG=ros_base
