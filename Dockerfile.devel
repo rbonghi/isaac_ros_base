@@ -140,6 +140,7 @@ RUN if [ "$(uname -m)" = "x86_64" ]; then \
         apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc ; \
         add-apt-repository 'deb http://repo.download.nvidia.com/jetson/x86_64/focal r35.1 main' ; \
         apt-get update ; \
+        apt-get install -y tensorrt ; \
         apt-get install -y libnvvpi2 vpi2-dev ; \
         rm -rf /var/lib/apt/lists/* ; \
         apt-get clean ; \
