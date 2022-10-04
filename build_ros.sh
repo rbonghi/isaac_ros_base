@@ -34,40 +34,81 @@ reset=`tput sgr0`
 BASE_DIST=ubuntu20.04
 CUDA_VERSION=11.4.1
 
-#### DEVEL #############
+usage()
+{
+    if [ "$1" != "" ]; then
+        echo "${red}$1${reset}" >&2
+    fi
 
-echo " - ${bold}BUILD DEVEL${reset}"
+    local name=$(basename ${0})
+    echo "$name Edge impulse on nanosaur." >&2
+    echo "${bold}Commands:${reset}" >&2
+    echo "  $name help                     This help" >&2
+    echo "  $name devel                    Buld devel image" >&2
+    echo "  $name runtime                  Build runtime image" >&2
+}
 
-BASE_IMAGE=isaac_ros/base:devel
 
-docker build \
-    -t isaac_ros/base:devel \
-    --build-arg BASE_DIST="$BASE_DIST" \
-    --build-arg CUDA_VERSION="$CUDA_VERSION" \
-    -f Dockerfile.devel \
-    .
+main()
+{
+    # Check if run in sudo
+    if [[ `id -u` -eq 0 ]] ; then 
+        echo "${red}Please don't run as root${reset}" >&2
+        exit 1
+    fi
+    local option=$1
+    if [ -z "$option" ] ; then
+        usage
+        exit 0
+    fi
+    # Load all arguments except the first one
+    local arguments=${@:2}
 
-docker build \
-    -t isaac_ros/base:humble-devel \
-    --build-arg BASE_IMAGE="$BASE_IMAGE" \
-    -f Dockerfile.humble \
-    .
+    # Options
+    if [ $option = "help" ] || [ $option = "-h" ]; then
+        usage
+        exit 0
+    elif [ $option = "devel" ] ; then
+        #### DEVEL #############
+        echo " - ${bold}BUILD DEVEL${reset}"
 
-#### RUNTIME #############
+        BASE_IMAGE=isaac_ros/base:devel
 
-echo " - ${bold}BUILD RUNTIME${reset}"
+        docker build \
+            -t isaac_ros/base:devel \
+            --build-arg BASE_DIST="$BASE_DIST" \
+            --build-arg CUDA_VERSION="$CUDA_VERSION" \
+            -f Dockerfile.devel \
+            .
 
-BASE_IMAGE=isaac_ros/base:runtime
+        docker build \
+            -t isaac_ros/base:humble-devel \
+            --build-arg BASE_IMAGE="$BASE_IMAGE" \
+            -f Dockerfile.humble \
+            .
+    elif [ $option = "runtime" ] ; then
+        #### RUNTIME #############
+        echo " - ${bold}BUILD RUNTIME${reset}"
 
-docker build \
-    -t isaac_ros/base:runtime \
-    --build-arg BASE_DIST="$BASE_DIST" \
-    --build-arg CUDA_VERSION="$CUDA_VERSION" \
-    -f Dockerfile.runtime \
-    .
+        BASE_IMAGE=isaac_ros/base:runtime
 
-docker build \
-    -t isaac_ros/base:humble \
-    --build-arg BASE_IMAGE="$BASE_IMAGE" \
-    -f Dockerfile.humble \
-    .
+        docker build \
+            -t isaac_ros/base:runtime \
+            --build-arg BASE_DIST="$BASE_DIST" \
+            --build-arg CUDA_VERSION="$CUDA_VERSION" \
+            -f Dockerfile.runtime \
+            .
+
+        docker build \
+            -t isaac_ros/base:humble \
+            --build-arg BASE_IMAGE="$BASE_IMAGE" \
+            -f Dockerfile.humble \
+            .
+    fi
+
+    usage "[ERROR] Unknown option: $option" >&2
+    exit 1
+}
+main $@
+exit 0
+# EOF
