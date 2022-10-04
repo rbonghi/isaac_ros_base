@@ -128,32 +128,53 @@ RUN python3 -m pip install -U \
 
 # Install Git-LFS
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
-        apt-get update && apt-get install -y \
-        git-lfs \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt-get clean
+    apt-get update && apt-get install -y \
+    git-lfs \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-RUN sudo apt install -y gnupg \
-    && sudo apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc \
-    && echo "deb https://repo.download.nvidia.com/jetson/common r${L4T} main" >> /etc/apt/sources.list.d/nvidia-l4t-apt-source.list
+# Install VPI
+# Install TensorRT
+RUN if [ "$(uname -m)" = "x86_64" ]; then \
+	    set -e ; \
+        apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc ; \
+        add-apt-repository 'deb http://repo.download.nvidia.com/jetson/x86_64/focal r35.1 main' ; \
+        apt-get update ; \
+        apt-get install -y libnvvpi2 vpi2-dev ; \
+        rm -rf /var/lib/apt/lists/* ; \
+        apt-get clean ; \
+    else \
+        set -e ; \
+        apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc ; \
+        echo "deb https://repo.download.nvidia.com/jetson/common r${L4T} main" >> /etc/apt/sources.list.d/nvidia-l4t-apt-source.list ; \
+        apt-get update ; \
+        apt-get install -y tensorrt ; \
+        apt-get install -y libnvvpi2 vpi2-dev ; \
+        rm -rf /var/lib/apt/lists/* ; \
+        apt-get clean ; \
+    fi
 
 ###############################
 
-
-# Install TensorRT and VPI
-RUN apt-get update && apt-get install -y \
-    tensorrt \
-    vpi2-dev \
-&& rm -rf /var/lib/apt/lists/* && apt-get clean
-
 # Install tao-converter
 COPY tao/tao-converter-aarch64-tensorrt8.4.zip /opt/nvidia/tao/tao-converter-aarch64-tensorrt8.4.zip
-RUN mkdir -p /opt/nvidia/tao && \
-    cd /opt/nvidia/tao && \    
-    unzip -j tao-converter-aarch64-tensorrt8.4.zip -d /opt/nvidia/tao/jp5 && \
-    chmod 755 $(find /opt/nvidia/tao -name "tao-converter") && \
-    ln -sf $(find /opt/nvidia/tao -name "tao-converter")  /opt/nvidia/tao/tao-converter && \
-    rm tao-converter-aarch64-tensorrt8.4.zip
+RUN if [ "$(uname -m)" = "x86_64" ]; then \
+        rm /opt/nvidia/tao/tao-converter-aarch64-tensorrt8.4.zip ; \
+        mkdir -p /opt/nvidia/tao ; \
+        cd /opt/nvidia/tao ; \
+        wget https://developer.nvidia.com/tao-converter-80 ; \
+        unzip tao-converter-80 ; \
+        chmod 755 $(find /opt/nvidia/tao -name "tao-converter") ; \
+        ln -sf $(find /opt/nvidia/tao -name "tao-converter") /opt/nvidia/tao/tao-converter ; \
+        rm tao-converter-80 ; \
+    else \
+        mkdir -p /opt/nvidia/tao ; \
+        cd /opt/nvidia/tao ; \    
+        unzip -j tao-converter-aarch64-tensorrt8.4.zip -d /opt/nvidia/tao/jp5 ; \
+        chmod 755 $(find /opt/nvidia/tao -name "tao-converter") ; \
+        ln -sf $(find /opt/nvidia/tao -name "tao-converter")  /opt/nvidia/tao/tao-converter ; \
+        rm tao-converter-aarch64-tensorrt8.4.zip ; \
+    fi
 
 ENV PATH="${PATH}:/opt/nvidia/tao"
 
