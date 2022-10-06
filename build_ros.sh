@@ -31,8 +31,6 @@ yellow=`tput setaf 3`
 blue=`tput setaf 4`
 reset=`tput sgr0`
 
-BASE_DIST=ubuntu20.04
-CUDA_VERSION=11.4.1
 
 usage()
 {
@@ -51,6 +49,10 @@ usage()
 
 main()
 {
+    local BUILD_MULTI_ARCH_IMAGES=false
+    local BUILDX=buildx
+    local BASE_DIST=ubuntu20.04
+    local CUDA_VERSION=11.4.1
     # Check if run in sudo
     if [[ `id -u` -eq 0 ]] ; then 
         echo "${red}Please don't run as root${reset}" >&2
@@ -79,13 +81,15 @@ main()
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             -f Dockerfile.devel \
-            .
+            . || { echo "${red}docker build failure!${reset}"; exit 1; }
 
         docker build \
             -t isaac_ros/base:humble-devel \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             -f Dockerfile.humble \
-            .
+            . || { echo "${red}docker build failure!${reset}"; exit 1; }
+        
+        exit 0
     elif [ $option = "runtime" ] ; then
         #### RUNTIME #############
         echo " - ${bold}BUILD RUNTIME${reset}"
@@ -97,13 +101,15 @@ main()
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             -f Dockerfile.runtime \
-            .
+            . || { echo "${red}docker build failure!${reset}"; exit 1; }
 
         docker build \
             -t isaac_ros/base:humble \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             -f Dockerfile.humble \
-            .
+            . || { echo "${red}docker build failure!${reset}"; exit 1; }
+
+        exit 0
     fi
 
     usage "[ERROR] Unknown option: $option" >&2
