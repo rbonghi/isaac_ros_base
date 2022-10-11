@@ -137,29 +137,26 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Install VPI
-# Install TensorRT
-RUN if [ "$(uname -m)" = "x86_64" ]; then \
-        set -e ; \
+############################################################
+
+RUN set -e && \
+    if [ "$(uname -m)" = "x86_64" ]; then \
         apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc ; \
         add-apt-repository 'deb http://repo.download.nvidia.com/jetson/x86_64/focal r35.1 main' ; \
-        apt-get update ; \
-        apt-get install -y tensorrt ; \
-        apt-get install -y libnvvpi2 vpi2-dev ; \
-        rm -rf /var/lib/apt/lists/* ; \
-        apt-get clean ; \
     else \
-        set -e ; \
         apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc ; \
         echo "deb https://repo.download.nvidia.com/jetson/common r${L4T} main" >> /etc/apt/sources.list.d/nvidia-l4t-apt-source.list ; \
-        apt-get update ; \
-        apt-get install -y tensorrt ; \
-        apt-get install -y libnvvpi2 vpi2-dev ; \
-        rm -rf /var/lib/apt/lists/* ; \
-        apt-get clean ; \
     fi
 
-###############################
+############################################################
+
+# Install VPI & TensorRT
+RUN apt-get update && \
+        apt-get install -y tensorrt libnvvpi2 vpi2-dev && \
+        rm -rf /var/lib/apt/lists/* && \
+        apt-get clean
+
+############################################################
 
 # Install tao-converter
 COPY tao/tao-converter-aarch64-tensorrt${TENSORRT_VERSION}.zip /opt/nvidia/tao/tao-converter-aarch64-tensorrt${TENSORRT_VERSION}.zip
@@ -185,6 +182,8 @@ RUN if [ "$(uname -m)" = "x86_64" ]; then \
 
 ENV PATH="${PATH}:/opt/nvidia/tao"
 
+############################################################
+
 # Update environment
 ENV LD_LIBRARY_PATH="/opt/nvidia/vpi2/lib64:${LD_LIBRARY_PATH}"
 ENV LD_LIBRARY_PATH="/usr/lib/aarch64-linux-gnu/tegra:${LD_LIBRARY_PATH}"
@@ -206,6 +205,8 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
         python3 -m pip install --no-cache \
             https://developer.download.nvidia.cn/compute/redist/jp/v50/pytorch/torch-1.13.0a0+340c4120.nv22.06-cp38-cp38-linux_aarch64.whl ; \
     fi
+
+############################################################
 
 # Install Triton server 2.24 from https://github.com/triton-inference-server/server/releases/tag/v2.24.0
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -238,6 +239,8 @@ RUN if [ "$(uname -m)" = "x86_64" ]; then \
     fi 
 
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/tritonserver/lib"
+
+############################################################
 
 # Add MQTT binaries and libraries
 RUN apt-add-repository ppa:mosquitto-dev/mosquitto-ppa \

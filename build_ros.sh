@@ -76,14 +76,14 @@ main()
 
         BASE_IMAGE=isaac_ros/base:devel
 
-        docker build \
+        docker ${BUILDX} build \
             -t isaac_ros/base:devel \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             -f Dockerfile.devel \
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
 
-        docker build \
+        docker ${BUILDX} build \
             -t isaac_ros/base:humble-devel \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             -f Dockerfile.humble \
@@ -96,14 +96,14 @@ main()
 
         BASE_IMAGE=isaac_ros/base:runtime
 
-        docker build \
+        docker ${BUILDX} build \
             -t isaac_ros/base:runtime \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             -f Dockerfile.runtime \
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
 
-        docker build \
+        docker ${BUILDX} build \
             -t isaac_ros/base:humble \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             -f Dockerfile.humble \
