@@ -31,6 +31,7 @@ yellow=`tput setaf 3`
 blue=`tput setaf 4`
 reset=`tput sgr0`
 
+BUILD_BASE=devel
 
 usage()
 {
@@ -39,11 +40,20 @@ usage()
     fi
 
     local name=$(basename ${0})
-    echo "$name Edge impulse on nanosaur." >&2
+    echo "$name isaac_ros_base for different architectures." >&2
     echo "${bold}Commands:${reset}" >&2
     echo "  $name help                     This help" >&2
-    echo "  $name devel                    Buld devel image" >&2
-    echo "  $name runtime                  Build runtime image" >&2
+    echo "  $name devel [OPTIONS ...]      Build devel image" >&2
+    echo "  $name runtime [OPTIONS ...]    Build runtime image" >&2
+    echo "  $name humble [OPTIONS ...]     Build ROS2 humble image" >&2
+    echo
+    echo "${bold}OPTIONS:${reset}"
+    echo " --buildx                        Use docker buildx" >&2
+    echo " --ci                            Run build in CI (without cash and pull a latest base image)" >&2
+    echo " --base [NAME]                   Build from base image. Default: ${bold}$BUILD_BASE${reset}" >&2
+    echo " --multiarch                     Build in multiarch (ARM64 and AMD64)" >&2
+    echo " --arm64                         Build for arm64 architecture" >&2
+    echo " --amd64                         Build for x86_64 architecture" >&2
 }
 
 
@@ -51,6 +61,9 @@ main()
 {
     local BUILD_MULTI_ARCH_IMAGES=false
     local BUILDX=""
+    local ARCH=""
+    local MULTIARCH=false
+    local CI=false
     local BASE_DIST=ubuntu20.04
     local CUDA_VERSION=11.4.1
     # Check if run in sudo
@@ -64,12 +77,26 @@ main()
         exit 0
     fi
     # Load all arguments except the first one
-    local arguments=${@:2}
-
     while [ -n "$2" ]; do
         case "$2" in
             --buildx) # Load help
                 BUILDX=buildx
+                ;;
+            --ci)
+                CI=true
+                ;;
+            --arm64)
+                ARCH="arm64"
+                ;;
+            --amd64)
+                ARCH="amd64"
+                ;;
+            --base)
+                BUILD_BASE=$3
+                shift 1
+                ;;
+            --multiarch)
+                MULTIARCH=true
                 ;;
             *)
                 usage "[ERROR] Unknown option: $2" >&2
@@ -79,47 +106,62 @@ main()
             shift 1
     done
 
+    local multiarch_option=""
+    if [ ! -z $BUILDX ] ; then
+        # Check platform
+        if [ "$ARCH" == "arm64" ] ; then
+            multiarch_option="--platform linux/arm64"
+        elif [ "$ARCH" == "amd64" ] ; then
+            multiarch_option="--platform linux/amd64"
+        fi
+        # Check if multiarch
+        if $MULTIARCH ; then
+            multiarch_option="--platform linux/arm64,linux/amd64"
+        fi
+    fi
+
     # Options
     if [ $option = "help" ] || [ $option = "-h" ]; then
         usage
         exit 0
     elif [ $option = "devel" ] ; then
-        #### DEVEL #############
-        echo " - ${bold}BUILD DEVEL${reset}"
 
-        BASE_IMAGE=isaac_ros/base:devel
+        #### DEVEL #############
+        echo " - ${bold}BUILD DEVEL${reset} - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
 
         docker ${BUILDX} build \
             -t isaac_ros/base:devel \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
+            $multiarch_option \
             -f Dockerfile.devel \
-            . || { echo "${red}docker build failure!${reset}"; exit 1; }
-
-        docker ${BUILDX} build \
-            -t isaac_ros/base:humble-devel \
-            --build-arg BASE_IMAGE="$BASE_IMAGE" \
-            -f Dockerfile.humble \
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
         
         exit 0
     elif [ $option = "runtime" ] ; then
         #### RUNTIME #############
-        echo " - ${bold}BUILD RUNTIME${reset}"
-
-        BASE_IMAGE=isaac_ros/base:runtime
+        echo " - ${bold}BUILD RUNTIME${reset} - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
 
         docker ${BUILDX} build \
             -t isaac_ros/base:runtime \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
+            $multiarch_option \
             -f Dockerfile.runtime \
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
+
+        exit 0
+    elif [ $option = "humble" ] ; then
+        BASE_IMAGE=isaac_ros/base:$BUILD_BASE
+
+        #### HUMBLE #############
+        echo " - ${bold}BUILD HUMBLE${reset} - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
 
         docker ${BUILDX} build \
             -t isaac_ros/base:humble \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
-            -f Dockerfile.humble \
+            $multiarch_option \
+            -f Dockerfile.humble-$BUILD_BASE \
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
 
         exit 0
