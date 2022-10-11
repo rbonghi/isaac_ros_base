@@ -17,8 +17,8 @@ Run
 | Name                        | x86 | ARM64 |
 |-----------------------------|-----|-------|
 | isaac_ros/base:devel        | Yes | Yes   |
-| isaac_ros/base:humble-devel | Yes | Yes   |
 | isaac_ros/base:runtime      | Yes | Yes   |
+| isaac_ros/base:humble-devel | Yes | Yes   |
 | isaac_ros/base:humble       | Yes | Yes   |
 
 # Test build Isaac ROS
