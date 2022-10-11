@@ -50,7 +50,7 @@ usage()
 main()
 {
     local BUILD_MULTI_ARCH_IMAGES=false
-    local BUILDX=buildx
+    local BUILDX=""
     local BASE_DIST=ubuntu20.04
     local CUDA_VERSION=11.4.1
     # Check if run in sudo
@@ -65,6 +65,19 @@ main()
     fi
     # Load all arguments except the first one
     local arguments=${@:2}
+
+    while [ -n "$2" ]; do
+        case "$2" in
+            --buildx) # Load help
+                BUILDX=buildx
+                ;;
+            *)
+                usage "[ERROR] Unknown option: $2" >&2
+                exit 1
+                ;;
+        esac
+            shift 1
+    done
 
     # Options
     if [ $option = "help" ] || [ $option = "-h" ]; then
