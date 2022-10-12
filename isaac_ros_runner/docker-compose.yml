@@ -1,0 +1,57 @@
+# Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+
+version: '2.3'
+
+services:
+  worker:
+    image: myoung34/github-runner:latest
+    restart: always
+    environment:
+      REPO_URL: https://github.com/rbonghi/isaac_ros_base
+      RUNNER_NAME: ${GITHUB_ACTIONS_RUNNER_NAME}
+      ACCESS_TOKEN: ${GITHUB_ACTIONS_ACCESS_TOKEN}
+      RUNNER_WORKDIR: ${PWD}/github-actions
+      RUNNER_SCOPE: 'org'
+      LABELS: linux,gpu,nvidia
+    security_opt:
+      # needed on SELinux systems to allow docker container to manage other docker containers
+      - label:disable
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - '${PWD}/github-actions:${PWD}/github-actions'
+      # note: a quirk of docker-in-docker is that this path
+      # needs to be the same path on host and inside the container,
+      # docker mgmt cmds run outside of docker but expect the paths from within
+    labels:
+      - "com.centurylinklabs.watchtower.scope=isaac_ros_base-runner"
+  # Watchtower - Check if new images are available
+  watchtower: # https://containrrr.dev/watchtower
+    image: containrrr/watchtower
+    restart: always
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME}/.docker/config.json:/config.json
+    command: --scope isaac_ros_base-runner --interval 43200 # Check every half day
+    labels:
+      - "com.centurylinklabs.watchtower.scope=isaac_ros_base-runner"
