@@ -8,7 +8,7 @@ Multiplatform cross compilable Isaac ROS for Jetson and x86
 
 There are two ways to use this repository, build locally the isaac_ros_base images or use in CI, but you need to install a local runner on your desktop with NVIDIA graphic card
 
-# Build
+## Build locally
 
 If you want to run locally use and follow the help:
 
@@ -20,7 +20,7 @@ If you want to run locally use and follow the help:
 
 Follow README in [isaac_ros_runner](isaac_ros_runner) folder
 
-# Images
+## Images available
 
 | Name                                | AMD64 | ARM64 |
 |-------------------------------------|-------|-------|
