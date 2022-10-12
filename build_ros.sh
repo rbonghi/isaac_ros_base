@@ -64,6 +64,8 @@ main()
     local ARCH=""
     local MULTIARCH=false
     local CI=false
+
+    local docker_image_name=rbonghi/isaac-ros-base
     local BASE_DIST=ubuntu20.04
     local CUDA_VERSION=11.4.1
     # Check if run in sudo
@@ -130,7 +132,7 @@ main()
         echo " - ${bold}BUILD DEVEL${reset} - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
 
         docker ${BUILDX} build \
-            -t isaac_ros/base:devel \
+            -t $docker_image_name:devel \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             $multiarch_option \
@@ -143,7 +145,7 @@ main()
         echo " - ${bold}BUILD RUNTIME${reset} - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
 
         docker ${BUILDX} build \
-            -t isaac_ros/base:runtime \
+            -t $docker_image_name:runtime \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             $multiarch_option \
@@ -152,13 +154,13 @@ main()
 
         exit 0
     elif [ $option = "humble" ] ; then
-        BASE_IMAGE=isaac_ros/base:$BUILD_BASE
+        BASE_IMAGE=$docker_image_name:$BUILD_BASE
 
         #### HUMBLE #############
         echo " - ${bold}BUILD HUMBLE${reset} - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
 
         docker ${BUILDX} build \
-            -t isaac_ros/base:humble \
+            -t $docker_image_name:humble \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             $multiarch_option \
             -f Dockerfile.humble-$BUILD_BASE \
