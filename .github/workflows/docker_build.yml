@@ -8,7 +8,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  docker_image_name: rbonghi/isaac_ros_base
+  docker_image_name: rbonghi/isaac-ros-base
+  BASE_DIST: ubuntu20.04
+  CUDA_VERSION: 11.4.1
 
 # https://github.com/docker/build-push-action
 jobs:
@@ -44,8 +46,8 @@ jobs:
       with:
         file: Dockerfile.devel
         build-args: |
-          BASE_DIST=ubuntu20.04
-          CUDA_VERSION=11.4.1
+          BASE_DIST=${{ env.BASE_DIST }}
+          CUDA_VERSION=${{ env.CUDA_VERSION }}
         push: ${{ github.actor != 'dependabot[bot]' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
