@@ -1,6 +1,6 @@
-# Isaac ROS Base - Docker CI
+# Isaac ROS Base - Multi architecture & CI based
 
-Multiplatform cross compilable Isaac ROS for Jetson and x86
+Multi architecture cross compilable Isaac ROS for x86 and NVIDIA Jetson with **Jetpack 5.0+**
 
 > **Note**: Repository under construction
 

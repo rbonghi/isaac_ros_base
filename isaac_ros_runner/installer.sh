@@ -46,7 +46,9 @@ install_docker()
     # Check if is installed docker compose
     # https://docs.docker.com/engine/install/ubuntu/#set-up-the-repository
     docker compose version &> /dev/null
+    echo "- Checking ${bold}Docker and Docker compose${reset} installation"
     if [ $? -ne 0 ]; then
+        echo "${yellow}   - Installing ${bold}Docker compose${reset}"
         sudo apt-get update
         sudo apt-get install -y ca-certificates curl gnupg lsb-release
         sudo mkdir -p /etc/apt/keyrings
@@ -63,16 +65,15 @@ install_docker()
 
 install_x86()
 {
-    # Check if is running on NVIDIA Jetson platform
-    echo "Install on ${bold}${green}Desktop${reset} ${green}platform${reset}"
-
+    # Check x86 platform
+    echo "- Check ${bold}${green}Desktop${reset} ${green}platform${reset}"
     # Check if GPU is installed
     if type nvidia-smi &>/dev/null; then
         GPU_ATTACHED=(`nvidia-smi -a | grep "Attached GPUs"`)
         if [ ! -z $GPU_ATTACHED ]; then
-            echo "${bold}${green}GPU attached!${reset}"
+            echo "${bold}${green}   - GPU attached!${reset}"
         else
-            echo "${red}Install NVIDIA grafic card drivers and rerun!${reset}"
+            echo "${red}   - Install NVIDIA grafic card drivers and rerun!${reset}"
             exit 33
         fi
     fi
@@ -83,9 +84,9 @@ install_x86()
     # https://stackoverflow.com/questions/1298066/how-can-i-check-if-a-package-is-installed-and-install-it-if-not
     REQUIRED_PKG="nvidia-docker2"
     PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
-    echo Checking for $REQUIRED_PKG: $PKG_OK
+    echo "- Checking for $REQUIRED_PKG: ${bold}$PKG_OK${reset}"
     if [ "" = "$PKG_OK" ]; then
-        echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
+        echo "${yellow}   - No $REQUIRED_PKG. Setting up $REQUIRED_PKG.${reset}"
         # Add distribution
         distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
             && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
@@ -159,20 +160,22 @@ main()
         install_x86
     fi
 
+    echo "- Checking Docker permissions"
     if ! getent group docker | grep -q "\b$USER\b" ; then
-        echo " - Add docker permissions to ${bold}${green}user=$USER${reset}"
+        echo "${yellow}   - Add docker permissions to ${reset}${bold}${green}user=$USER${reset}"
         sudo usermod -aG docker $USER
     fi
 
     # Make sure the nvidia docker runtime will be used for builds
     DEFAULT_RUNTIME=$(docker info | grep "Default Runtime: nvidia" ; true)
+    echo "- Checking docker runtime"
     if [[ -z "$DEFAULT_RUNTIME" ]]; then
-        echo "${yellow} - Set runtime nvidia on /etc/docker/daemon.json${reset}"
+        echo "${yellow}   - Set runtime nvidia on /etc/docker/daemon.json${reset}"
         sudo mv /etc/docker/daemon.json /etc/docker/daemon.json.bkp
         sudo cp docker-config/daemon.json /etc/docker/daemon.json
     fi
 
-    echo "${yellow} - Restart docker server${reset}"
+    echo "${yellow}- Restart docker server${reset}"
     sudo systemctl restart docker.service
 }
 
