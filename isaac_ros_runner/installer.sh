@@ -61,15 +61,6 @@ install_docker()
     fi
 }
 
-install_jetson()
-{
-    echo "Install on ${bold}${green}NVIDIA${reset} ${green}Jetson platform${reset}"
-
-    local PATH_HOST_FILES4CONTAINER="/etc/nvidia-container-runtime/host-files-for-container.d"
-    echo "${green} - Enable extra folders and symbols${reset}"
-    sudo cp docker-config/devices.csv $PATH_HOST_FILES4CONTAINER/devices.csv
-}
-
 install_x86()
 {
     # Check if is running on NVIDIA Jetson platform
@@ -128,7 +119,7 @@ main()
     done
 
     while ! $SILENT; do
-        read -p "Do you wish to install nanosaur-runner? [Y/n] " yn
+        read -p "Do you wish to install isaac_ros_base-runner? [Y/n] " yn
             case $yn in
                 [Yy]* ) break;;
                 [Nn]* ) exit;;
@@ -162,11 +153,9 @@ main()
     sudo -v
 
     # Install docker and docker compose
-    #install_docker
+    install_docker
     # Check if is running on NVIDIA Jetson platform
-    if [[ $PLATFORM = "aarch64" ]]; then
-        install_jetson
-    else
+    if [[ $PLATFORM != "aarch64" ]]; then
         install_x86
     fi
 

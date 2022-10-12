@@ -18,17 +18,21 @@ the following scopes are selected:
 
 # Install
 
-Add docker permission in your user:
-```
-sudo usermod -aG docker $USER
-```
-**PLEASE NOTE** You need to logout/login from your board/desktop!
-
 Follow the installer running, from **`isaac_ros_runner`** folder:
 
 ```
 bash installer.sh
 ```
+
+This script do:
+ 1. Ask GitHub Action token and create `.env` file
+ 2. Check and Install `docker` and `docker-compose-plugin` (v2)
+ 3. Install `nvidia-docker2` (for desktop)
+ 4. Add permission to **docker** user
+ 5. Set default NVIDIA runtime
+ 6. restart docker service
+
+> **Note**: You need to logout/login from your board/desktop!
 
 # Run github action runner
 
