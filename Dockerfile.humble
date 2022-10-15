@@ -35,9 +35,7 @@ ENV PYTHONIOENCODING=utf-8
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
 
-# 
 # install development packages
-#
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libbullet-dev \
@@ -57,9 +55,8 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# install some pip packages needed for testing
+# ROS Python fundamentals
 RUN python3 -m pip install -U \
-        argcomplete \
         flake8-blind-except \
         flake8-builtins \
         flake8-class-newline \
@@ -70,16 +67,15 @@ RUN python3 -m pip install -U \
         flake8-quotes \
         pytest-repeat \
         pytest-rerunfailures \
-        pytest
-
-#
-# remove other versions of Python3
-# workaround for 'Could NOT find Python3 (missing: Python3_NumPy_INCLUDE_DIRS Development'
-#
-RUN apt purge -y python3.9 libpython3.9* || echo "python3.9 not found, skipping removal" && \
-    ls -ll /usr/bin/python*
+        pytest \
+        setuptools
 
 ############################################################
+
+# Avoid setup.py and easy_install deprecation warnings caused by colcon and setuptools
+# https://github.com/colcon/colcon-core/issues/454
+ENV PYTHONWARNINGS=ignore:::setuptools.command.install,ignore:::setuptools.command.easy_install,ignore:::pkg_resources
+RUN echo "Warning: Using the PYTHONWARNINGS environment variable to silence setup.py and easy_install deprecation warnings caused by colcon"
 
 # 
 # download/build ROS from source
@@ -165,9 +161,7 @@ RUN apt-get update && mkdir -p ${ROS_ROOT}/src && cd ${ROS_ROOT}/src \
 # Restore using the default Humble DDS middleware: FastRTPS
 ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 
-#
 # setup entrypoint
-#
 COPY scripts/ros_entrypoint.sh /ros_entrypoint.sh
 
 RUN sed -i \
