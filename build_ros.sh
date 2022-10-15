@@ -31,6 +31,9 @@ yellow=`tput setaf 3`
 blue=`tput setaf 4`
 reset=`tput sgr0`
 
+docker_image_name=rbonghi/isaac-ros-base
+BASE_DIST=ubuntu20.04
+CUDA_VERSION=11.4.1
 BUILD_BASE=devel
 
 usage()
@@ -65,9 +68,6 @@ main()
     local MULTIARCH=false
     local CI=false
 
-    local docker_image_name=rbonghi/isaac-ros-base
-    local BASE_DIST=ubuntu20.04
-    local CUDA_VERSION=11.4.1
     # Check if run in sudo
     if [[ `id -u` -eq 0 ]] ; then 
         echo "${red}Please don't run as root${reset}" >&2
@@ -156,14 +156,16 @@ main()
     elif [ $option = "humble" ] ; then
         BASE_IMAGE=$docker_image_name:$BUILD_BASE
 
+        local HUMBLE_TAG="humble-$BUILD_BASE"
+
         #### HUMBLE #############
         echo " - ${bold}BUILD HUMBLE${reset} - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
 
         docker ${BUILDX} build \
-            -t $docker_image_name:humble \
+            -t $docker_image_name:$HUMBLE_TAG \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             $multiarch_option \
-            -f Dockerfile.humble-$BUILD_BASE \
+            -f Dockerfile.humble \
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
 
         exit 0

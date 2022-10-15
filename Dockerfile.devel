@@ -38,88 +38,95 @@ SHELL ["/bin/bash", "-c"]
 
 # Fundamentals
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    curl \
-    git \
-    lsb-release \
-    sudo \
-    tar \
-    unzip \
-    vim \
-    wget \
-    libgoogle-glog-dev \
-    software-properties-common \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt-get clean
+        apt-transport-https \
+        build-essential \
+        cmake \
+        curl \
+        git \
+        git-lfs \
+        lsb-release \
+        tar \
+        unzip \
+        wget \
+        gnupg \
+        gnupg2 \
+        ca-certificates \
+        libgoogle-glog-dev \
+        software-properties-common \
+        locales \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-# Upgrade cmake to 3.23.2
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null \
-    && echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null \
+# 
+# upgrade cmake - https://stackoverflow.com/a/56690743
+# this is needed to build some of the ROS2 packages
+#
+RUN wget -qO - https://apt.kitware.com/keys/kitware-archive-latest.asc | apt-key add - \
+    && apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" \
     && apt-get update \
-    && rm /usr/share/keyrings/kitware-archive-keyring.gpg \
-    && apt-get install -y kitware-archive-keyring \
-    && apt-get remove cmake && apt-get purge cmake && apt-get remove cmake-data && apt-get purge cmake \
-    && apt-get install -y cmake=3.23.2-0kitware1ubuntu20.04.1 cmake-data=3.23.2-0kitware1ubuntu20.04.1 \
+    && apt-get install -y --no-install-recommends --only-upgrade \
+        cmake \
     && cmake --version \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt-get clean
-
-# Set Python3 as default
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Python basics
 RUN apt-get update && apt-get install -y \
+        python3 \
         python3-flake8 \
         python3-pip \
         python3-pytest-cov \
         python3-setuptools \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt-get clean
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Set Python3 as default
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
 # Install OpenCV dependencies
 RUN apt-get update && apt-get install -y \
-    libavformat-dev \
-    libjpeg-dev \
-    libopenjp2-7-dev \
-    libpng-dev \
-    libpq-dev \
-    libswscale-dev \
-    libtbb2 \
-    libtbb-dev \
-    libtiff-dev \
-    pkg-config \
-    yasm \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt-get clean
+        libavformat-dev \
+        libjpeg-dev \
+        libopenjp2-7-dev \
+        libpng-dev \
+        libpq-dev \
+        libswscale-dev \
+        libtbb2 \
+        libtbb-dev \
+        libtiff-dev \
+        pkg-config \
+        yasm \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Install additional packages needed for ROS2 dependencies
 RUN apt-get update && apt-get install -y \
-    python3-distutils \
-    libboost-all-dev \
-    libboost-dev \
-    libpcl-dev \
-    libode-dev \
-    lcov \
-    python3-zmq \
-    libxaw7-dev \
-    libgraphicsmagick++1-dev \
-    graphicsmagick-libmagick-dev-compat \
-    libceres-dev \
-    libsuitesparse-dev \
-    libncurses5-dev \
-    libassimp-dev \
-    libyaml-cpp-dev \
-    libpcap-dev \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt-get clean
+        python3-distutils \
+        libboost-all-dev \
+        libboost-dev \
+        libpcl-dev \
+        libode-dev \
+        lcov \
+        python3-zmq \
+        libxaw7-dev \
+        libgraphicsmagick++1-dev \
+        graphicsmagick-libmagick-dev-compat \
+        libceres-dev \
+        libsuitesparse-dev \
+        libncurses5-dev \
+        libassimp-dev \
+        libyaml-cpp-dev \
+        libpcap-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # sklearn dependencies
 RUN apt-get update && apt-get install -y \
-    gfortran \
-    libatlas-base-dev \
-    python3-scipy \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt-get clean
+        gfortran \
+        libatlas-base-dev \
+        python3-scipy \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # sklearn Python dependencies
 RUN python3 -m pip install -U \
@@ -130,74 +137,55 @@ RUN python3 -m pip install -U \
 RUN python3 -m pip install -U \
     scikit-learn
 
-# Install Git-LFS
-RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
-    apt-get update && apt-get install -y \
-    git-lfs \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+########### Sources and main Jetson reopo ##################
 
-############################################################
-
-RUN set -e && \
+RUN set -e -x && \
     if [ "$(uname -m)" = "x86_64" ]; then \
         apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc ; \
-        add-apt-repository 'deb http://repo.download.nvidia.com/jetson/x86_64/focal r35.1 main' ; \
+        add-apt-repository "deb http://repo.download.nvidia.com/jetson/x86_64/focal r${L4T} main" ; \
     else \
         apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc ; \
         echo "deb https://repo.download.nvidia.com/jetson/common r${L4T} main" >> /etc/apt/sources.list.d/nvidia-l4t-apt-source.list ; \
     fi
 
-############################################################
+# TODO NVIDIA Jetson
+# Add libraries jetson_multimedia API
+# 
+# apt-get download nvidia-l4t-jetson-multimedia-api
+# dpkg -x nvidia-l4t-jetson-multimedia-api_35.1.0-20220825113828_arm64.deb /
 
-# Install VPI & TensorRT
-RUN apt-get update && \
-        apt-get install -y tensorrt libnvvpi2 vpi2-dev && \
-        rm -rf /var/lib/apt/lists/* && \
-        apt-get clean
+########### VPI & TensorRT #################################
 
-############################################################
+RUN apt-get update \
+    && apt-get install -y tensorrt libnvvpi2 vpi2-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-# Install tao-converter
-COPY tao/tao-converter-aarch64-tensorrt${TENSORRT_VERSION}.zip /opt/nvidia/tao/tao-converter-aarch64-tensorrt${TENSORRT_VERSION}.zip
-RUN if [ "$(uname -m)" = "x86_64" ]; then \
-        set -e ; \
-        rm /opt/nvidia/tao/tao-converter-aarch64-tensorrt${TENSORRT_VERSION}.zip ; \
-        mkdir -p /opt/nvidia/tao ; \
-        cd /opt/nvidia/tao ; \
-        wget https://developer.nvidia.com/tao-converter-80 ; \
-        unzip tao-converter-80 ; \
-        chmod 755 $(find /opt/nvidia/tao -name "tao-converter") ; \
-        ln -sf $(find /opt/nvidia/tao -name "tao-converter") /opt/nvidia/tao/tao-converter ; \
-        rm tao-converter-80 ; \
-    else \
-        set -e ; \
-        mkdir -p /opt/nvidia/tao ; \
-        cd /opt/nvidia/tao ; \    
-        unzip -j tao-converter-aarch64-tensorrt${TENSORRT_VERSION}.zip -d /opt/nvidia/tao/jp5 ; \
-        chmod 755 $(find /opt/nvidia/tao -name "tao-converter") ; \
-        ln -sf $(find /opt/nvidia/tao -name "tao-converter")  /opt/nvidia/tao/tao-converter ; \
-        rm tao-converter-aarch64-tensorrt${TENSORRT_VERSION}.zip ; \
-    fi
+############ TAO converter #################################
+
+COPY tao /opt/nvidia/tao
+RUN TERM=xterm bash /opt/nvidia/tao/install_tao.sh ${TENSORRT_VERSION} \
+    && rm /opt/nvidia/tao/install_tao.sh
 
 ENV PATH="${PATH}:/opt/nvidia/tao"
 
+############ Tritonserver ##################################
+
+COPY scripts/install_tritonserver.sh install_tritonserver.sh
+RUN TERM=xterm bash install_tritonserver.sh ${TRITON_VERSION} ${JETPACK} \
+    && rm install_tritonserver.sh
+
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/tritonserver/lib"
+
+############ OpenCV ########################################
+
+ARG OPENCV_URL=https://nvidia.box.com/shared/static/5v89u6g5rb62fpz4lh0rz531ajo2t5ef.gz
+ARG OPENCV_DEB=OpenCV-4.5.0-aarch64.tar.gz
+
+#COPY scripts/opencv_install.sh /tmp/opencv_install.sh
+#RUN cd /tmp && ./opencv_install.sh ${OPENCV_URL} ${OPENCV_DEB}
+
 ############################################################
-
-# Update environment
-ENV LD_LIBRARY_PATH="/opt/nvidia/vpi2/lib64:${LD_LIBRARY_PATH}"
-ENV LD_LIBRARY_PATH="/usr/lib/aarch64-linux-gnu/tegra:${LD_LIBRARY_PATH}"
-ENV LD_LIBRARY_PATH="/usr/local/cuda-11.4/targets/aarch64-linux/lib:${LD_LIBRARY_PATH}"
-ENV LD_LIBRARY_PATH="/usr/lib/aarch64-linux-gnu/tegra-egl:${LD_LIBRARY_PATH}"
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/lib/aarch64-linux-gnu-host"
-ENV PATH="${PATH}:/usr/local/cuda/bin"
-
-# https://forums.developer.nvidia.com/t/error-importerror-usr-lib-aarch64-linux-gnu-libgomp-so-1-cannot-allocate-memory-in-static-tls-block-i-looked-through-available-threads-already/166494/3
-# ENV LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libgomp.so.1"
-RUN if [ "$(uname -m)" != "x86_64" ]; then \
-    export LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libgomp.so.1" ; \
-    fi
-RUN echo "LD_PRELOAD=$LD_PRELOAD"
 
 # PyTorch (NV CUDA edition)
 # https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html
@@ -206,54 +194,18 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
             https://developer.download.nvidia.cn/compute/redist/jp/v50/pytorch/torch-1.13.0a0+340c4120.nv22.06-cp38-cp38-linux_aarch64.whl ; \
     fi
 
-############################################################
-
-# Install Triton server 2.24 from https://github.com/triton-inference-server/server/releases/tag/v2.24.0
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    autoconf \
-    automake \
-    libb64-dev \
-    libcurl4-openssl-dev \
-    libopenblas-dev \
-    libre2-dev \
-    libssl-dev \
-    libtool \
-    patchelf \
-    rapidjson-dev \
-    zlib1g-dev \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt-get clean
-
-RUN if [ "$(uname -m)" = "x86_64" ]; then \
-        mkdir -p /opt/tritonserver ; \
-        cd /opt/tritonserver ; \
-        wget https://github.com/triton-inference-server/server/releases/download/v${TRITON_VERSION}/v${TRITON_VERSION}_ubuntu2004.clients.tar.gz ; \
-        tar -xzvf v${TRITON_VERSION}_ubuntu2004.clients.tar.gz ; \
-        rm v${TRITON_VERSION}_ubuntu2004.clients.tar.gz ; \
-    else \
-        mkdir -p /opt/tritonserver ; \
-        cd /opt/tritonserver ; \
-        wget https://github.com/triton-inference-server/server/releases/download/v${TRITON_VERSION}/tritonserver${TRITON_VERSION}-jetpack${JETPACK}.tgz ; \
-        tar -xzvf tritonserver${TRITON_VERSION}-jetpack${JETPACK}.tgz ; \
-        rm tritonserver${TRITON_VERSION}-jetpack${JETPACK}.tgz ; \
-    fi 
-
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/tritonserver/lib"
-
-############################################################
-
 # Add MQTT binaries and libraries
 RUN apt-add-repository ppa:mosquitto-dev/mosquitto-ppa \
     && apt-get update && apt-get install -y \
         mosquitto \
         mosquitto-clients \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt-get clean
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Note: VPN cannot be on for pymongo download
 RUN python3 -m pip install -U \
-  pymongo \
-  paho-mqtt
+        pymongo \
+        paho-mqtt
   
 # Core dev libraries
 RUN apt-get update && apt-get install -y \
@@ -263,8 +215,8 @@ RUN apt-get update && apt-get install -y \
         libcunit1-dev \
         libopencv-dev \
         python3-opencv \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt-get clean
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # NPP library
 #RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -274,10 +226,15 @@ RUN apt-get update && apt-get install -y \
 
 # Upgrade libc to resolve vulnerabilities including CVE-2019-11477
 RUN apt-get update && apt-get install -y --only-upgrade \
-       linux-libc-dev \      
-&& rm -rf /var/lib/apt/lists/* \
-&& apt-get clean
+        linux-libc-dev \      
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Downgrade protobuf
-RUN python3 -m pip install \
-        protobuf==3.20.1
+RUN python3 -m pip install protobuf==3.20.1
+
+############################################################
+
+COPY scripts/entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bash"]
