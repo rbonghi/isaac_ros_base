@@ -52,6 +52,7 @@ usage()
     echo
     echo "${bold}OPTIONS:${reset}"
     echo " --buildx                        Use docker buildx" >&2
+    echo " --push                          Push docker image" >&2
     echo " --ci                            Run build in CI (without cash and pull a latest base image)" >&2
     echo " --base [NAME]                   Build from base image. Default: ${bold}$BUILD_BASE${reset}" >&2
     echo " --multiarch                     Build in multiarch (ARM64 and AMD64)" >&2
@@ -67,6 +68,7 @@ main()
     local ARCH=""
     local MULTIARCH=false
     local CI=false
+    local PUSH=false
 
     # Check if run in sudo
     if [[ `id -u` -eq 0 ]] ; then 
@@ -100,6 +102,9 @@ main()
             --multiarch)
                 MULTIARCH=true
                 ;;
+            --push)
+                PUSH=true
+                ;;
             *)
                 usage "[ERROR] Unknown option: $2" >&2
                 exit 1
@@ -122,6 +127,15 @@ main()
         fi
     fi
 
+    # Push value
+    local push_value=""
+    if $PUSH ; then
+        echo "${bold}BUILD & PUSH${reset} $docker_image_name"
+        push_value="--push"
+    else
+        echo "${bold}BUILD${reset} $docker_image_name"
+    fi
+
     # Options
     if [ $option = "help" ] || [ $option = "-h" ]; then
         usage
@@ -129,9 +143,10 @@ main()
     elif [ $option = "devel" ] ; then
 
         #### DEVEL #############
-        echo " - ${bold}BUILD DEVEL${reset} - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
+        echo " - ${bold}DEVEL${reset} image - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
 
         docker ${BUILDX} build \
+            $push_value \
             -t $docker_image_name:devel \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
@@ -142,9 +157,10 @@ main()
         exit 0
     elif [ $option = "runtime" ] ; then
         #### RUNTIME #############
-        echo " - ${bold}BUILD RUNTIME${reset} - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
+        echo " - ${bold}RUNTIME${reset} image - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
 
         docker ${BUILDX} build \
+            $push_value \
             -t $docker_image_name:runtime \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
@@ -159,9 +175,10 @@ main()
         local HUMBLE_TAG="humble-$BUILD_BASE"
 
         #### HUMBLE #############
-        echo " - ${bold}BUILD HUMBLE${reset} - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
+        echo " - ${bold}HUMBLE${reset} image - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
 
         docker ${BUILDX} build \
+            $push_value \
             -t $docker_image_name:$HUMBLE_TAG \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             $multiarch_option \
