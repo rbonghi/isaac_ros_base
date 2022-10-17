@@ -1,8 +1,19 @@
 # Isaac ROS Base - Multi architecture & CI based
 
+[![build](https://github.com/rbonghi/isaac_ros_base/actions/workflows/docker_build.yml/badge.svg)](https://github.com/rbonghi/isaac_ros_base/actions/workflows/docker_build.yml)
+
 Multi architecture cross compilable Isaac ROS for x86 and NVIDIA Jetson with **Jetpack 5.0+**
 
 > **Note**: Repository under construction
+
+# Requirements
+
+Desktop
+* NVIDIA Graphic card
+
+NVIDIA Jetson
+* Xavier or Orin series
+* Jetpack 5.0+
 
 # Install
 
