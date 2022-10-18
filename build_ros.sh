@@ -86,6 +86,8 @@ main()
     local ARCH=$(uname -i)
     if [ "$ARCH" == "x86_64" ] ; then
         ARCH="amd64"
+    else
+        ARCH="arm64"
     fi
 
     # Check if run in sudo
