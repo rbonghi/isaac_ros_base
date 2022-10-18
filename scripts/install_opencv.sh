@@ -25,18 +25,36 @@
 
 set -e -x
 
-OPENCV_VERSION=4.5.0
+OPENCV_VERSION=${1:-4.5.0}
+
 NUM_CPU=$(nproc)
+
+OPENCV_FOLDER="/opt/opencv"
+ENABLE_NONFREE=ON
 
 ARCH=$(uname -i)
 echo "ARCH:  $ARCH"
 
 echo "Installing OpenCV ${OPENCV_VERSION} on $ARCH"
 
-# remove old versions or previous builds
-cd ~ 
-sudo rm -rf opencv*
-# download version 4.5.0
+# Install OpenCV dependencies
+apt-get update
+apt-get install -y \
+    libavformat-dev \
+    libjpeg-dev \
+    libopenjp2-7-dev \
+    libpng-dev \
+    libpq-dev \
+    libswscale-dev \
+    libtbb2 \
+    libtbb-dev \
+    libtiff-dev \
+    pkg-config \
+    yasm
+
+# Move to opt folder
+cd /opt
+# download OpenCV version source code
 wget -O opencv.zip https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip 
 wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/${OPENCV_VERSION}.zip 
 # unpack
@@ -44,31 +62,45 @@ unzip opencv.zip
 unzip opencv_contrib.zip 
 # some administration to make live easier later on
 mv opencv-${OPENCV_VERSION} opencv
-mv opencv_contrib-${OPENCV_VERSION} opencv_contrib
+mv opencv_contrib-${OPENCV_VERSION} ${OPENCV_FOLDER}/opencv_contrib
 # clean up the zip files
 rm opencv.zip
 rm opencv_contrib.zip
 
 # set install dir
-cd ~/opencv
+cd $OPENCV_FOLDER
 mkdir build
 cd build
+
+# https://developer.nvidia.com/cuda-gpus
+# https://forums.developer.nvidia.com/t/what-is-the-compute-capability-for-the-orion-update-your-page/211447
+if [ "$(uname -m)" = "x86_64" ]; then
+    CUDA_ARCH_BIN=7.5
+    ENABLE_NEON=OFF
+else
+    # NVIDIA Jetson Xavier series = 7.2
+    # NVIDIA Jetson Orin series = 8.7
+    CUDA_ARCH_BIN=7.2,8.7
+    ENABLE_NEON=ON
+fi
+
+echo "cmake openCV with CUDA_ARCH_BIN=$CUDA_ARCH_BIN"
 
 # run cmake
 cmake -D CMAKE_BUILD_TYPE=RELEASE \
 -D CMAKE_INSTALL_PREFIX=/usr \
--D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules \
+-D OPENCV_EXTRA_MODULES_PATH=${OPENCV_FOLDER}/opencv_contrib/modules \
 -D EIGEN_INCLUDE_PATH=/usr/include/eigen3 \
 -D WITH_OPENCL=OFF \
 -D WITH_CUDA=ON \
--D CUDA_ARCH_BIN=5.3 \
+-D CUDA_ARCH_BIN=$CUDA_ARCH_BIN \
 -D CUDA_ARCH_PTX="" \
 -D WITH_CUDNN=ON \
 -D WITH_CUBLAS=ON \
 -D ENABLE_FAST_MATH=ON \
 -D CUDA_FAST_MATH=ON \
 -D OPENCV_DNN_CUDA=ON \
--D ENABLE_NEON=ON \
+-D ENABLE_NEON=$ENABLE_NEON \
 -D WITH_QT=OFF \
 -D WITH_OPENMP=ON \
 -D BUILD_TIFF=ON \
@@ -80,7 +112,7 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
 -D WITH_EIGEN=ON \
 -D WITH_V4L=ON \
 -D WITH_LIBV4L=ON \
--D OPENCV_ENABLE_NONFREE=ON \
+-D OPENCV_ENABLE_NONFREE=$ENABLE_NONFREE \
 -D INSTALL_C_EXAMPLES=OFF \
 -D INSTALL_PYTHON_EXAMPLES=OFF \
 -D BUILD_NEW_PYTHON_SUPPORT=ON \
@@ -91,13 +123,21 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
 echo "Make openCV with $NUM_CPU CPU"
 make -j$(($NUM_CPU - 1))
 
-sudo rm -r /usr/include/opencv4/opencv2
-sudo make install
-sudo ldconfig
+rm -r /usr/include/opencv4/opencv2
+make install
+ldconfig
+
+echo "Clean OpenCV installation"
 
 # cleaning (frees 300 MB)
 make clean
-sudo apt-get update
+rm -rf /var/lib/apt/lists/*
+apt-get clean
+# Remove OpenCV folder
+rm -R $OPENCV_FOLDER
 
-echo "Congratulations!"
-echo "You've successfully installed OpenCV ${OPENCV_VERSION} on $ARCH"
+echo "Installed OpenCV ${OPENCV_VERSION} on $ARCH"
+
+# test importing cv2
+echo "testing cv2 module under python..."
+python3 -c "import cv2; print('OpenCV version:', str(cv2.__version__)); print(cv2.getBuildInformation())"

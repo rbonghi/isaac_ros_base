@@ -66,7 +66,9 @@ message_start()
     local CI=$2
     local TAG=$3
     # Push message
-    echo "${bold}CI${reset} setup"
+    if $CI ; then
+        echo "${bold}CI${reset} setup"
+    fi
     if $PUSH ; then
         echo "${bold}BUILD & PUSH${reset} $docker_image_name:$TAG"
     else
@@ -77,7 +79,7 @@ message_start()
 main()
 {
     local MULTIARCH=false
-    local CI=false
+    local CI_BUILD=false
     local PUSH=false
     local BUILDX=""
     # Autoselect mode
@@ -103,7 +105,7 @@ main()
                 BUILDX=buildx
                 ;;
             --ci)
-                CI=true
+                CI_BUILD=true
                 ;;
             --arm64)
                 ARCH="arm64"
@@ -176,7 +178,7 @@ main()
         exit 0
     elif [ $option = "devel" ] ; then
         #### DEVEL #############
-        message_start $PUSH $CI $TAG
+        message_start $PUSH $CI_BUILD $TAG
         echo " - ${bold}DEVEL${reset} image - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
 
         docker ${BUILDX} build \
@@ -192,7 +194,7 @@ main()
         exit 0
     elif [ $option = "runtime" ] ; then
         #### RUNTIME #############
-        message_start $PUSH $CI $TAG
+        message_start $PUSH $CI_BUILD $TAG
         echo " - ${bold}RUNTIME${reset} image - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
 
         docker ${BUILDX} build \
@@ -210,7 +212,7 @@ main()
 
         BASE_IMAGE=$docker_image_name:$BUILD_BASE
         #### HUMBLE #############
-        message_start $PUSH $CI $TAG
+        message_start $PUSH $CI_BUILD $TAG
         echo " - ${bold}HUMBLE${reset} image - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
 
         docker ${BUILDX} build \
