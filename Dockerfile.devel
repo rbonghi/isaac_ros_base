@@ -241,5 +241,5 @@ RUN python3 -m pip install protobuf==3.20.1
 ############################################################
 
 COPY scripts/entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["bash"]
+#ENTRYPOINT ["/entrypoint.sh"]
+#CMD ["bash"]

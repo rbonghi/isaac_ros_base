@@ -60,15 +60,31 @@ usage()
     echo " --amd64                         Build for x86_64 architecture" >&2
 }
 
+message_start()
+{
+    local PUSH=$1
+    local CI=$2
+    local TAG=$3
+    # Push message
+    echo "${bold}CI${reset} setup"
+    if $PUSH ; then
+        echo "${bold}BUILD & PUSH${reset} $docker_image_name:$TAG"
+    else
+        echo "${bold}BUILD${reset} $docker_image_name:$TAG"
+    fi
+}
 
 main()
 {
-    local BUILD_MULTI_ARCH_IMAGES=false
-    local BUILDX=""
-    local ARCH=""
     local MULTIARCH=false
     local CI=false
     local PUSH=false
+    local BUILDX=""
+    # Autoselect mode
+    local ARCH=$(uname -i)
+    if [ "$ARCH" == "x86_64" ] ; then
+        ARCH="amd64"
+    fi
 
     # Check if run in sudo
     if [[ `id -u` -eq 0 ]] ; then 
@@ -114,26 +130,44 @@ main()
     done
 
     local multiarch_option=""
+    local push_value=""
+    local CI_OPTIONS=""
     if [ ! -z $BUILDX ] ; then
-        # Check platform
-        if [ "$ARCH" == "arm64" ] ; then
+        if $MULTIARCH ; then
+            multiarch_option="--platform linux/arm64,linux/amd64"
+        elif [ "$ARCH" == "arm64" ] ; then
             multiarch_option="--platform linux/arm64"
         elif [ "$ARCH" == "amd64" ] ; then
             multiarch_option="--platform linux/amd64"
         fi
-        # Check if multiarch
-        if $MULTIARCH ; then
-            multiarch_option="--platform linux/arm64,linux/amd64"
+        # Buildx push option
+        if $PUSH ; then
+            push_value="--push"
+        else
+            push_value="--load"
+        fi
+    else
+        if $PUSH ; then
+            push_value="--push"
+        fi
+
+        if $CI_BUILD ; then
+            # Set no-cache and pull before build
+            # https://newbedev.com/what-s-the-purpose-of-docker-build-pull
+            CI_OPTIONS="--no-cache --pull"
         fi
     fi
 
-    # Push value
-    local push_value=""
-    if $PUSH ; then
-        echo "${bold}BUILD & PUSH${reset} $docker_image_name"
-        push_value="--push"
-    else
-        echo "${bold}BUILD${reset} $docker_image_name"
+    local TAG="$option"
+    if [ $option = "humble" ] ; then
+        local TAG="humble-$BUILD_BASE"
+    fi
+    if ! $MULTIARCH ; then
+        if [ "$ARCH" == "arm64" ] ; then
+            TAG="${TAG}-arm64"
+        elif [ "$ARCH" == "amd64" ] ; then
+            TAG="${TAG}-amd64"
+        fi
     fi
 
     # Options
@@ -141,13 +175,14 @@ main()
         usage
         exit 0
     elif [ $option = "devel" ] ; then
-
         #### DEVEL #############
+        message_start $PUSH $CI $TAG
         echo " - ${bold}DEVEL${reset} image - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
 
         docker ${BUILDX} build \
             $push_value \
-            -t $docker_image_name:devel \
+            $CI_OPTIONS \
+            -t $docker_image_name:$TAG \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             $multiarch_option \
@@ -157,11 +192,13 @@ main()
         exit 0
     elif [ $option = "runtime" ] ; then
         #### RUNTIME #############
+        message_start $PUSH $CI $TAG
         echo " - ${bold}RUNTIME${reset} image - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
 
         docker ${BUILDX} build \
             $push_value \
-            -t $docker_image_name:runtime \
+            $CI_OPTIONS \
+            -t $docker_image_name:$TAG \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             $multiarch_option \
@@ -170,16 +207,16 @@ main()
 
         exit 0
     elif [ $option = "humble" ] ; then
+
         BASE_IMAGE=$docker_image_name:$BUILD_BASE
-
-        local HUMBLE_TAG="humble-$BUILD_BASE"
-
         #### HUMBLE #############
+        message_start $PUSH $CI $TAG
         echo " - ${bold}HUMBLE${reset} image - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
 
         docker ${BUILDX} build \
             $push_value \
-            -t $docker_image_name:$HUMBLE_TAG \
+            $CI_OPTIONS \
+            -t $docker_image_name:$TAG \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             $multiarch_option \
             -f Dockerfile.humble \
