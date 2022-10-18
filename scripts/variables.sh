@@ -24,5 +24,5 @@ if [ "$(uname -m)" = "x86_64" ]; then
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/lib/aarch64-linux-gnu/tegra"
     export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/lib/aarch64-linux-gnu/tegra-egl"
     # https://forums.developer.nvidia.com/t/error-importerror-usr-lib-aarch64-linux-gnu-libgomp-so-1-cannot-allocate-memory-in-static-tls-block-i-looked-through-available-threads-already/166494/3
-    export LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libgomp.so.1"
+    export LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libgomp.so.1
 fi

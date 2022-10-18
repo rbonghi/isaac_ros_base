@@ -25,9 +25,6 @@
 
 set -e -x
 
-# Load all NVDIA libraries variables
-source /variables.sh
-
 OPENCV_VERSION=${1:-4.5.0}
 
 NUM_CPU=$(nproc)
@@ -88,6 +85,8 @@ else
 fi
 
 echo "cmake openCV with CUDA_ARCH_BIN=$CUDA_ARCH_BIN"
+# Load all NVDIA libraries variables
+source /variables.sh
 
 # run cmake
 cmake -D CMAKE_BUILD_TYPE=RELEASE \
