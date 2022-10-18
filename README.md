@@ -23,6 +23,11 @@ There are two ways to use this repository, build locally the isaac_ros_base imag
 
 If you want to run locally use and follow the help:
 
+> **Warning**: 
+> You can use this script only on:
+>  * x86 machines with NVIDIA graphic card
+>  * NVIDIA Jetson Orin or Xavier series
+
 ```
 ./build_ros.sh
 ```
