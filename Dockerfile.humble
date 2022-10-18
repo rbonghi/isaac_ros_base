@@ -158,7 +158,7 @@ RUN apt-get update && mkdir -p ${ROS_ROOT}/src && cd ${ROS_ROOT}/src \
 
 ############################################################
 
-# Restore using the default Humble DDS middleware: FastRTPS
+# Default Humble DDS middleware: FastRTPS
 ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 
 # setup entrypoint
