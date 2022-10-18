@@ -25,6 +25,9 @@
 
 set -e -x
 
+# Load all NVDIA libraries variables
+source /variables.sh
+
 OPENCV_VERSION=${1:-4.5.0}
 
 NUM_CPU=$(nproc)

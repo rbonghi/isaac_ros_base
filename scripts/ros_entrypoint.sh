@@ -19,12 +19,10 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-if [ "$(uname -m)" != "x86_64" ]; then
-    # https://forums.developer.nvidia.com/t/error-importerror-usr-lib-aarch64-linux-gnu-libgomp-so-1-cannot-allocate-memory-in-static-tls-block-i-looked-through-available-threads-already/166494/3
-    export LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libgomp.so.1"
-fi
-
 set -e
+
+# Load all NVDIA libraries variables
+source /variables.sh
 
 ros_env_setup="/opt/ros/$ROS_DISTRO/setup.bash"
 echo "sourcing   $ros_env_setup"

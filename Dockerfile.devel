@@ -128,6 +128,7 @@ RUN python3 -m pip install -U \
 
 ########### Sources and main Jetson reopo ##################
 
+COPY scripts/variables.sh /variables.sh
 COPY scripts/install_nvidia_sources.sh install_nvidia_sources.sh
 RUN TERM=xterm bash install_nvidia_sources.sh ${L4T} \
     && rm install_nvidia_sources.sh
