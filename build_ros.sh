@@ -131,6 +131,19 @@ main()
             shift 1
     done
 
+    # Check if Desktop has GPU
+    if [ "$ARCH" == "amd64" ] ; then
+        if type nvidia-smi &>/dev/null; then
+            local GPU_ATTACHED=(`nvidia-smi -a | grep "Attached GPUs"`)
+            if [ ! -z $GPU_ATTACHED ]; then
+                echo "${green}GPU $GPU_ATTACHED${reset}"
+            else
+                echo "${red}GPU not attached. Check if driver are installed.${reset}"
+                exit 1
+            fi
+        fi
+    fi
+
     local multiarch_option=""
     local push_value=""
     local CI_OPTIONS=""

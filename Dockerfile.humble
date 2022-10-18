@@ -26,6 +26,9 @@ ARG ROS_PKG=ros_base
 ENV ROS_DISTRO=humble
 ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 
+# ROS2 Humble iinstallation
+# https://docs.ros.org/en/humble/Installation/Alternatives/Ubuntu-Development-Setup.html
+
 # change the locale from POSIX to UTF-8
 RUN locale-gen en_US en_US.UTF-8 && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 ENV LANG=en_US.UTF-8

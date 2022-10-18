@@ -128,20 +128,9 @@ RUN python3 -m pip install -U \
 
 ########### Sources and main Jetson reopo ##################
 
-RUN set -e -x && \
-    if [ "$(uname -m)" = "x86_64" ]; then \
-        apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc ; \
-        add-apt-repository "deb http://repo.download.nvidia.com/jetson/x86_64/focal r${L4T} main" ; \
-    else \
-        apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc ; \
-        echo "deb https://repo.download.nvidia.com/jetson/common r${L4T} main" >> /etc/apt/sources.list.d/nvidia-l4t-apt-source.list ; \
-    fi
-
-# TODO NVIDIA Jetson
-# Add libraries jetson_multimedia API
-# 
-# apt-get download nvidia-l4t-jetson-multimedia-api
-# dpkg -x nvidia-l4t-jetson-multimedia-api_35.1.0-20220825113828_arm64.deb /
+COPY scripts/install_nvidia_sources.sh install_nvidia_sources.sh
+RUN TERM=xterm bash install_nvidia_sources.sh ${L4T} \
+    && rm install_nvidia_sources.sh
 
 ########### VPI & TensorRT #################################
 

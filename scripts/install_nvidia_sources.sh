@@ -19,18 +19,35 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-if [ "$(uname -m)" != "x86_64" ]; then
-    # https://forums.developer.nvidia.com/t/error-importerror-usr-lib-aarch64-linux-gnu-libgomp-so-1-cannot-allocate-memory-in-static-tls-block-i-looked-through-available-threads-already/166494/3
-    export LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libgomp.so.1"
+set -e -x
+
+L4T=$1
+
+echo "Adding NVIDIA sources"
+
+apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc
+
+if [ "$(uname -m)" = "x86_64" ]; then
+    # Adding sources for discrete NVIDIA GPU
+    add-apt-repository "deb http://repo.download.nvidia.com/jetson/x86_64/focal r${L4T} main"
+else
+    # Adding sources for NVIDIA Jetson
+    echo "deb https://repo.download.nvidia.com/jetson/common r${L4T} main" >> /etc/apt/sources.list.d/nvidia-l4t-apt-source.list
+
+    # Workaround to source libraries on Docker
+    echo "Installing sources jetson-multimedia-api"
+
+    cd /
+
+    apt-get update
+    apt-get download nvidia-l4t-jetson-multimedia-api
+    # Manually install jetson-multimedia-api sources
+    # Package output nvidia-l4t-jetson-multimedia-api_35.1.0-20220825113828_arm64.deb
+    dpkg -x nvidia-l4t-jetson-multimedia-api_*.deb /
+
+    # Remove package
+    rm nvidia-l4t-jetson-multimedia-api_*.deb
+    # Clean sources
+    rm -rf /var/lib/apt/lists/*
+    apt-get clean    
 fi
-
-set -e
-
-ros_env_setup="/opt/ros/$ROS_DISTRO/setup.bash"
-echo "sourcing   $ros_env_setup"
-source "$ros_env_setup"
-
-echo "ROS_ROOT   $ROS_ROOT"
-echo "ROS_DISTRO $ROS_DISTRO"
-
-exec "$@"

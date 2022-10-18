@@ -120,11 +120,10 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
 -D OPENCV_GENERATE_PKGCONFIG=ON \
 -D BUILD_EXAMPLES=OFF ..
 
-echo "Make openCV with $NUM_CPU CPU"
-make -j$(($NUM_CPU - 1))
+echo "Make & install OpenCV ${OPENCV_VERSION} with $NUM_CPU CPU"
+make -j$(($NUM_CPU - 1)) || { echo "OpenCV ${OPENCV_VERSION} failure!"; exit 1; }
 
-rm -r /usr/include/opencv4/opencv2
-make install
+make install || { echo "OpenCV ${OPENCV_VERSION} failure!"; exit 1; }
 ldconfig
 
 echo "Clean OpenCV installation"
