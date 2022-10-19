@@ -202,10 +202,13 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # NPP library
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        libnpp-dev-11-4 \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+# Error on aarch64
+# dpkg: error processing archive /var/cache/apt/archives/libnpp-11-4_11.4.0.228-1_arm64.deb
+#  trying to overwrite '/usr/local/cuda-11.4/lib64', which is also in package cuda-cuxxfilt-11-4 11.4.120-1
+#RUN apt-get update && apt-get install -y --no-install-recommends \
+#        libnpp-dev-11-4 \
+#&& rm -rf /var/lib/apt/lists/* \
+#&& apt-get clean
 
 # Upgrade libc to resolve vulnerabilities including CVE-2019-11477
 RUN apt-get update && apt-get install -y --only-upgrade \
