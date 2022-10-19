@@ -14,6 +14,15 @@ To build these NVIDIA Docker you can choose one of these options:
    * Xavier or Orin series
    * Jetpack 5.0+
 
+# Images available
+
+| Name                                  | AMD64 | ARM64 |
+|---------------------------------------|:-----:|:-----:|
+| `rbonghi/isaac_ros_base:devel`        | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |
+| `rbonghi/isaac_ros_base:runtime`      | Soon   | Soon   |
+| `rbonghi/isaac_ros_base:humble-devel` | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |
+| `rbonghi/isaac_ros_base:humble`       | Soon   | Soon   |
+
 # Install
 
 There are two ways to use this repository, build locally the isaac_ros_base images or use in CI, but you need to install a local runner on your desktop with NVIDIA graphic card
@@ -34,15 +43,6 @@ If you want to run locally use and follow the help:
 ## isaac_ros_runner
 
 Follow README in [isaac_ros_runner](isaac_ros_runner) folder
-
-## Images available
-
-| Name                                | AMD64 | ARM64 |
-|-------------------------------------|-------|-------|
-| rbonghi/isaac_ros_base:devel        | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |
-| rbonghi/isaac_ros_base:runtime      | Soon   | Soon   |
-| rbonghi/isaac_ros_base:humble-devel | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |
-| rbonghi/isaac_ros_base:humble       | Soon   | Soon   |
 
 # Test build Isaac ROS
 
