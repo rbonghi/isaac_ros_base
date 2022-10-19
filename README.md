@@ -18,7 +18,7 @@ To build these NVIDIA Docker you can choose one of these options:
 
 All images are based with:
 
-| Soft     | Version |
+| Software | Version |
 |----------|:-------:|
 | Ubuntu   | 20.04   |
 | CUDA     | 11.4    |
