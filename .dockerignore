@@ -1,4 +1,4 @@
 .github/
 isaac_ros_runner/
 example/
-build_ros.sh
+docker_build_ros.sh
