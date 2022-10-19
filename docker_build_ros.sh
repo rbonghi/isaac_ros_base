@@ -188,13 +188,6 @@ main()
     if [ $option = "humble" ] ; then
         local TAG="humble-core-$BUILD_BASE"
     fi
-    if ! $MULTIARCH ; then
-        if [ "$ARCH" == "arm64" ] ; then
-            TAG="${TAG}-arm64"
-        elif [ "$ARCH" == "amd64" ] ; then
-            TAG="${TAG}-amd64"
-        fi
-    fi
 
     # copy deb packages to jetson-containers/packages directory
     if [ $option = "opencv" ] && $EXTRACT ; then

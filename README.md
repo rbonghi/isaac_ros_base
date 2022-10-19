@@ -16,6 +16,18 @@ To build these NVIDIA Docker you can choose one of these options:
 
 # Images available
 
+All images are based with:
+
+| Soft     | Version |
+|----------|:-------:|
+| Ubuntu   | 20.04   |
+| CUDA     | 11.4    |
+| OpenCV   | 4.5.0   |
+| TensorRT | 8.4     |
+| Triton   | 2.24.0  |
+
+Images:
+
 | Name                                  | AMD64 | ARM64 |
 |---------------------------------------|:-----:|:-----:|
 | `rbonghi/isaac_ros_base:humble-core-devel`       | Soon   | Soon   |
