@@ -84,11 +84,11 @@ RUN apt-get update \
         qv4l2 \
         v4l-utils \
         zlib1g-dev \
-		python3-pip \
-		python3-dev \
-		python3-numpy \
-		python3-distutils \
-		python3-setuptools \
+        python3-pip \
+        python3-dev \
+        python3-numpy \
+        python3-distutils \
+        python3-setuptools \
         # NVIDIA CUDA cuDNN
         libcudnn8-dev \
     && rm -rf /var/lib/apt/lists/* \
