@@ -186,7 +186,7 @@ main()
     # Build tag name
     local TAG="$option"
     if [ $option = "humble" ] ; then
-        local TAG="humble-$BUILD_BASE"
+        local TAG="humble-core-$BUILD_BASE"
     fi
     if ! $MULTIARCH ; then
         if [ "$ARCH" == "arm64" ] ; then
