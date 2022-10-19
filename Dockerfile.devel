@@ -20,11 +20,11 @@
 
 ARG BASE_DIST
 ARG CUDA_VERSION
+ARG OPENCV_VERSION
 # Intra layer OpenCV
-FROM rbonghi/isaac-ros-base:opencv as opencv_builder
+FROM rbonghi/isaac-ros-base:opencv-${OPENCV_VERSION} as opencv_builder
 
-ARG OPENCV_VERSION=4.5.0
-RUN cp /opt/opencv/build/OpenCV-${OPENCV_VERSION}-$(uname -i).tar.gz /OpenCV.tar.gz
+RUN cp /opt/opencv/build/OpenCV-*.tar.gz /OpenCV.tar.gz
 
 FROM nvidia/cuda:${CUDA_VERSION}-devel-${BASE_DIST}
 
@@ -198,16 +198,14 @@ RUN apt-get update && apt-get install -y \
         libbullet-dev \
         libtinyxml2-dev \
         libcunit1-dev \
-        libopencv-dev \
-        python3-opencv \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
 # NPP library
-#RUN apt-get update && apt-get install -y --no-install-recommends \
-#        libnpp-dev-11-4 \
-#&& rm -rf /var/lib/apt/lists/* \
-#&& apt-get clean
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libnpp-dev-11-4 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Upgrade libc to resolve vulnerabilities including CVE-2019-11477
 RUN apt-get update && apt-get install -y --only-upgrade \

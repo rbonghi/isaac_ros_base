@@ -204,7 +204,7 @@ main()
         docker run \
                 --rm \
                 --volume $PWD:/mount \
-                $docker_image_name:opencv \
+                $docker_image_name:opencv-$OPENCV_VERSION-$OPENCV_VERSION-$BASE_DIST \
                 cp /opt/opencv/build/$OPENCV_PACKAGE /mount
         if $? ; then
             echo "${red}Error to run the extraction${reset}"
@@ -230,11 +230,11 @@ main()
         docker ${BUILDX} build \
             $push_value \
             $CI_OPTIONS \
-            -t $docker_image_name:$TAG \
-            -t $docker_image_name:$TAG-$OPENCV_VERSION \
+            -t $docker_image_name:opencv-$OPENCV_VERSION \
+            -t $docker_image_name:opencv-$OPENCV_VERSION-$OPENCV_VERSION-$BASE_DIST \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
-            --build-arg OPENCV_VERSION=$OPENCV_VERSION \
+            --build-arg OPENCV_VERSION="$OPENCV_VERSION" \
             $multiarch_option \
             -f Dockerfile.opencv \
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
@@ -246,6 +246,7 @@ main()
         echo " - ${bold}DEVEL${reset} image"
         echo " - BASE_DIST=${green}$BASE_DIST${reset}"
         echo " - CUDA_VERSION=${green}$CUDA_VERSION${reset}"
+        echo " - OPENCV_VERSION=${green}$OPENCV_VERSION${reset}"
 
         docker ${BUILDX} build \
             $push_value \
@@ -253,6 +254,7 @@ main()
             -t $docker_image_name:$TAG \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
+            --build-arg OPENCV_VERSION="$OPENCV_VERSION" \
             $multiarch_option \
             -f Dockerfile.devel \
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
@@ -264,6 +266,7 @@ main()
         echo " - ${bold}RUNTIME${reset} image"
         echo " - BASE_DIST=${green}$BASE_DIST${reset}"
         echo " - CUDA_VERSION=${green}$CUDA_VERSION${reset}"
+        echo " - OPENCV_VERSION=${green}$OPENCV_VERSION${reset}"
 
         docker ${BUILDX} build \
             $push_value \
@@ -271,6 +274,7 @@ main()
             -t $docker_image_name:$TAG \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
+            --build-arg OPENCV_VERSION="$OPENCV_VERSION" \
             $multiarch_option \
             -f Dockerfile.runtime \
             . || { echo "${red}docker build failure!${reset}"; exit 1; }

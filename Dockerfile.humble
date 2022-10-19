@@ -22,7 +22,7 @@
 ARG BASE_IMAGE=rbonghi/isaac-ros-base:devel
 FROM ${BASE_IMAGE}
 
-ARG ROS_PKG=ros_base
+ARG ROS_PKG=ros_core
 ENV ROS_DISTRO=humble
 ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
 
