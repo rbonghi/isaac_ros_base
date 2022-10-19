@@ -1,17 +1,18 @@
 # Isaac ROS Base - Multi architecture & CI based
 
-Multi architecture cross compilable Isaac ROS for x86 and NVIDIA Jetson with **Jetpack 5.0+**
+[![Docker Pulls](https://img.shields.io/docker/pulls/rbonghi/isaac-ros-base)](https://hub.docker.com/r/rbonghi/isaac-ros-base)
 
-> **Note**: Repository under construction
+Multi architecture cross compilable Isaac ROS for x86 and NVIDIA Jetson with **Jetpack 5.0+**
 
 # Requirements
 
-Desktop
-* NVIDIA Graphic card
+To build these NVIDIA Docker you can choose one of these options:
 
-NVIDIA Jetson
-* Xavier or Orin series
-* Jetpack 5.0+
+1. **Desktop**
+   * NVIDIA Graphic card
+2. **NVIDIA Jetson**
+   * Xavier or Orin series
+   * Jetpack 5.0+
 
 # Install
 
@@ -38,13 +39,16 @@ Follow README in [isaac_ros_runner](isaac_ros_runner) folder
 
 | Name                                | AMD64 | ARM64 |
 |-------------------------------------|-------|-------|
-| rbonghi/isaac_ros_base:devel        | Yes   | Yes   |
-| rbonghi/isaac_ros_base:runtime      | Yes   | Yes   |
-| rbonghi/isaac_ros_base:humble-devel | Yes   | Yes   |
-| rbonghi/isaac_ros_base:humble       | Yes   | Yes   |
+| rbonghi/isaac_ros_base:devel        | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |
+| rbonghi/isaac_ros_base:runtime      | Soon   | Soon   |
+| rbonghi/isaac_ros_base:humble-devel | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |
+| rbonghi/isaac_ros_base:humble       | Soon   | Soon   |
 
 # Test build Isaac ROS
 
+Example to build Isaac ROS packages multiplatform
+
 ```
-docker build -t isaac_ros/packages:latest -f Dockerfile.isaac .
+cd example
+docker build -t isaac-ros-base/packages:latest -f Dockerfile.isaac .
 ```
