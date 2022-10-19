@@ -28,6 +28,11 @@ echo "Adding NVIDIA sources"
 apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc
 
 if [ "$(uname -m)" = "x86_64" ]; then
+    apt-get update
+    apt-get install -y software-properties-common
+    # Clean sources
+    rm -rf /var/lib/apt/lists/*
+    apt-get clean
     # Adding sources for discrete NVIDIA GPU
     add-apt-repository "deb http://repo.download.nvidia.com/jetson/x86_64/focal r${L4T} main"
 else

@@ -86,7 +86,7 @@ fi
 
 echo "cmake openCV with CUDA_ARCH_BIN=$CUDA_ARCH_BIN"
 # Load all NVDIA libraries variables
-source /variables.sh
+# source /variables.sh
 
 # run cmake
 cmake -D CMAKE_BUILD_TYPE=RELEASE \
@@ -113,7 +113,7 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
 -D BUILD_TESTS=OFF \
 -D WITH_EIGEN=ON \
 -D WITH_V4L=ON \
--D WITH_LIBV4L=ON \
+-D WITH_LIBV4L=ON \ 
 -D OPENCV_ENABLE_NONFREE=$ENABLE_NONFREE \
 -D INSTALL_C_EXAMPLES=OFF \
 -D INSTALL_PYTHON_EXAMPLES=OFF \
@@ -125,20 +125,20 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
 echo "Make & install OpenCV ${OPENCV_VERSION} with $NUM_CPU CPU"
 make -j$(($NUM_CPU - 1)) || { echo "OpenCV ${OPENCV_VERSION} failure!"; exit 1; }
 
-make install || { echo "OpenCV ${OPENCV_VERSION} failure!"; exit 1; }
-ldconfig
+#make install || { echo "OpenCV ${OPENCV_VERSION} failure!"; exit 1; }
+#ldconfig
 
 echo "Clean OpenCV installation"
 
 # cleaning (frees 300 MB)
-make clean
+#make clean
 rm -rf /var/lib/apt/lists/*
 apt-get clean
 # Remove OpenCV folder
-rm -R $OPENCV_FOLDER
+#rm -R $OPENCV_FOLDER
 
 echo "Installed OpenCV ${OPENCV_VERSION} on $ARCH"
 
 # test importing cv2
-echo "testing cv2 module under python..."
-python3 -c "import cv2; print('OpenCV version:', str(cv2.__version__)); print(cv2.getBuildInformation())"
+#echo "testing cv2 module under python..."
+#python3 -c "import cv2; print('OpenCV version:', str(cv2.__version__)); print(cv2.getBuildInformation())"

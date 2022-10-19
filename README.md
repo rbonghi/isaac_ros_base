@@ -29,7 +29,7 @@ If you want to run locally use and follow the help:
 >  * NVIDIA Jetson Orin or Xavier series
 
 ```
-./build_ros.sh
+./docker_build_ros.sh
 ```
 
 ## isaac_ros_runner

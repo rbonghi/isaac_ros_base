@@ -19,6 +19,10 @@
 # DEALINGS IN THE SOFTWARE.
 
 
+FROM rbonghi/isaac-ros-base:opencv as opencv_builder
+
+
+
 ARG BASE_DIST
 ARG CUDA_VERSION
 FROM nvidia/cuda:${CUDA_VERSION}-devel-${BASE_DIST}
@@ -126,7 +130,7 @@ RUN python3 -m pip install -U \
 RUN python3 -m pip install -U \
     scikit-learn
 
-########### Sources and main Jetson reopo ##################
+########### Sources and main Jetson repo ###################
 
 COPY scripts/variables.sh /variables.sh
 COPY scripts/install_nvidia_sources.sh install_nvidia_sources.sh

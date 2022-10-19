@@ -34,6 +34,7 @@ reset=`tput sgr0`
 docker_image_name=rbonghi/isaac-ros-base
 BASE_DIST=ubuntu20.04
 CUDA_VERSION=11.4.1
+OPENCV_VERSION=4.5.0
 BUILD_BASE=devel
 
 usage()
@@ -46,6 +47,7 @@ usage()
     echo "$name isaac_ros_base for different architectures." >&2
     echo "${bold}Commands:${reset}" >&2
     echo "  $name help                     This help" >&2
+    echo "  $name opencv [OPTIONS ...]     Build opencv image" >&2
     echo "  $name devel [OPTIONS ...]      Build devel image" >&2
     echo "  $name runtime [OPTIONS ...]    Build runtime image" >&2
     echo "  $name humble [OPTIONS ...]     Build ROS2 humble image" >&2
@@ -67,12 +69,12 @@ message_start()
     local TAG=$3
     # Push message
     if $CI ; then
-        echo "${bold}CI${reset} setup"
+        echo " - ${bold}CI${reset} setup"
     fi
     if $PUSH ; then
-        echo "${bold}BUILD & PUSH${reset} $docker_image_name:$TAG"
+        echo " - ${bold}BUILD & PUSH${reset} $docker_image_name:$TAG"
     else
-        echo "${bold}BUILD${reset} $docker_image_name:$TAG"
+        echo " - ${bold}BUILD${reset} $docker_image_name:$TAG"
     fi
 }
 
@@ -191,10 +193,34 @@ main()
     if [ $option = "help" ] || [ $option = "-h" ]; then
         usage
         exit 0
+    elif [ $option = "opencv" ] ; then
+        # Load OpenCV version
+        local OPENCV_VERSION="4.5.0"
+        #### DEVEL #############
+        message_start $PUSH $CI_BUILD $TAG
+        echo " - ${bold}OPENCV${reset} image"
+        echo " - BASE_DIST=${green}$BASE_DIST${reset}"
+        echo " - CUDA_VERSION=${green}$CUDA_VERSION${reset}"
+        echo " - OPENCV_VERSION=${green}$OPENCV_VERSION${reset}"
+
+        docker ${BUILDX} build \
+            $push_value \
+            $CI_OPTIONS \
+            -t $docker_image_name:$TAG \
+            --build-arg BASE_DIST="$BASE_DIST" \
+            --build-arg CUDA_VERSION="$CUDA_VERSION" \
+            --build-arg OPENCV_VERSION=$OPENCV_VERSION \
+            $multiarch_option \
+            -f Dockerfile.opencv \
+            . || { echo "${red}docker build failure!${reset}"; exit 1; }
+        
+        exit 0
     elif [ $option = "devel" ] ; then
         #### DEVEL #############
         message_start $PUSH $CI_BUILD $TAG
-        echo " - ${bold}DEVEL${reset} image - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
+        echo " - ${bold}DEVEL${reset} image"
+        echo " - BASE_DIST=${green}$BASE_DIST${reset}"
+        echo " - CUDA_VERSION=${green}$CUDA_VERSION${reset}"
 
         docker ${BUILDX} build \
             $push_value \
@@ -210,7 +236,9 @@ main()
     elif [ $option = "runtime" ] ; then
         #### RUNTIME #############
         message_start $PUSH $CI_BUILD $TAG
-        echo " - ${bold}RUNTIME${reset} image - BASE_DIST=${green}$BASE_DIST${reset} CUDA_VERSION=${green}$CUDA_VERSION${reset}"
+        echo " - ${bold}RUNTIME${reset} image"
+        echo " - BASE_DIST=${green}$BASE_DIST${reset}"
+        echo " - CUDA_VERSION=${green}$CUDA_VERSION${reset}"
 
         docker ${BUILDX} build \
             $push_value \
@@ -228,7 +256,8 @@ main()
         BASE_IMAGE=$docker_image_name:$BUILD_BASE
         #### HUMBLE #############
         message_start $PUSH $CI_BUILD $TAG
-        echo " - ${bold}HUMBLE${reset} image - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
+        echo " - ${bold}HUMBLE${reset} image"
+        echo " - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
 
         docker ${BUILDX} build \
             $push_value \
@@ -245,6 +274,7 @@ main()
     usage "[ERROR] Unknown option: $option" >&2
     exit 1
 }
+
 main $@
 exit 0
 # EOF
