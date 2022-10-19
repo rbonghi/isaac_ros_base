@@ -201,14 +201,17 @@ main()
         local architecture=$(uname -i)
         local OPENCV_PACKAGE="OpenCV-${CUDA_VERSION}-${architecture}.tar.gz"
 
-        docker run
+        docker run \
                 --rm \
                 --volume $PWD:/mount \
-                $docker_image_name:$TAG \
-                cp opencv/build/$OPENCV_PACKAGE /mount
-            
-        echo "OpenCV package is at ${bold}$PWD/$OPENCV_PACKAGE${reset}"
-
+                $docker_image_name:opencv \
+                cp /opt/opencv/build/$OPENCV_PACKAGE /mount
+        if $? ; then
+            echo "${red}Error to run the extraction${reset}"
+            exit 1
+        else
+            echo "OpenCV package is at ${bold}$PWD/$OPENCV_PACKAGE${reset}"
+        fi
         exit 0
     fi
 

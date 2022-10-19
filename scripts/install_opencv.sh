@@ -20,125 +20,63 @@
 # DEALINGS IN THE SOFTWARE.
 
 # Idea from
-# 1. https://github.com/Qengineering/Install-OpenCV-Jetson-Nano/blob/main/OpenCV-4-5-0.sh
-# 2. https://gist.github.com/raulqf/f42c718a658cddc16f9df07ecc627be7
+# 1. https://github.com/dusty-nv/jetson-containers/blob/master/scripts/opencv_install.sh
 
 set -e -x
-
-OPENCV_VERSION=${1:-4.5.0}
-
-NUM_CPU=$(nproc)
-
-OPENCV_FOLDER="/opt/opencv"
-ENABLE_NONFREE=ON
 
 ARCH=$(uname -i)
 echo "ARCH:  $ARCH"
 
-echo "Installing OpenCV ${OPENCV_VERSION} on $ARCH"
+# remove previous OpenCV installation if it exists
+apt-get purge -y '*opencv*' || echo "previous OpenCV installation not found"
 
-# Install OpenCV dependencies
-apt-get update
-apt-get install -y \
-    libavformat-dev \
-    libjpeg-dev \
-    libopenjp2-7-dev \
-    libpng-dev \
-    libpq-dev \
-    libswscale-dev \
-    libtbb2 \
-    libtbb-dev \
-    libtiff-dev \
-    pkg-config \
-    yasm
+# download and extract the deb packages
+mkdir opencv
+cd opencv
+tar -xzvf /opt/OpenCV.tar.gz
 
-# Move to opt folder
-cd /opt
-# download OpenCV version source code
-wget -O opencv.zip https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip 
-wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/${OPENCV_VERSION}.zip 
-# unpack
-unzip opencv.zip 
-unzip opencv_contrib.zip 
-# some administration to make live easier later on
-mv opencv-${OPENCV_VERSION} opencv
-mv opencv_contrib-${OPENCV_VERSION} ${OPENCV_FOLDER}/opencv_contrib
-# clean up the zip files
-rm opencv.zip
-rm opencv_contrib.zip
-
-# set install dir
-cd $OPENCV_FOLDER
-mkdir build
-cd build
-
-# https://developer.nvidia.com/cuda-gpus
-# https://forums.developer.nvidia.com/t/what-is-the-compute-capability-for-the-orion-update-your-page/211447
-if [ "$(uname -m)" = "x86_64" ]; then
-    CUDA_ARCH_BIN=7.5
-    ENABLE_NEON=OFF
-else
-    # NVIDIA Jetson Xavier series = 7.2
-    # NVIDIA Jetson Orin series = 8.7
-    CUDA_ARCH_BIN=7.2,8.7
-    ENABLE_NEON=ON
-fi
-
-echo "cmake openCV with CUDA_ARCH_BIN=$CUDA_ARCH_BIN"
-# Load all NVDIA libraries variables
-# source /variables.sh
-
-# run cmake
-cmake -D CMAKE_BUILD_TYPE=RELEASE \
--D CMAKE_INSTALL_PREFIX=/usr \
--D OPENCV_EXTRA_MODULES_PATH=${OPENCV_FOLDER}/opencv_contrib/modules \
--D EIGEN_INCLUDE_PATH=/usr/include/eigen3 \
--D WITH_OPENCL=OFF \
--D WITH_CUDA=ON \
--D CUDA_ARCH_BIN=$CUDA_ARCH_BIN \
--D CUDA_ARCH_PTX="" \
--D WITH_CUDNN=ON \
--D WITH_CUBLAS=ON \
--D ENABLE_FAST_MATH=ON \
--D CUDA_FAST_MATH=ON \
--D OPENCV_DNN_CUDA=ON \
--D ENABLE_NEON=$ENABLE_NEON \
--D WITH_QT=OFF \
--D WITH_OPENMP=ON \
--D BUILD_TIFF=ON \
--D WITH_FFMPEG=ON \
--D WITH_GSTREAMER=ON \
--D WITH_TBB=ON \
--D BUILD_TBB=ON \
--D BUILD_TESTS=OFF \
--D WITH_EIGEN=ON \
--D WITH_V4L=ON \
--D WITH_LIBV4L=ON \ 
--D OPENCV_ENABLE_NONFREE=$ENABLE_NONFREE \
--D INSTALL_C_EXAMPLES=OFF \
--D INSTALL_PYTHON_EXAMPLES=OFF \
--D BUILD_NEW_PYTHON_SUPPORT=ON \
--D BUILD_opencv_python3=TRUE \
--D OPENCV_GENERATE_PKGCONFIG=ON \
--D BUILD_EXAMPLES=OFF ..
-
-echo "Make & install OpenCV ${OPENCV_VERSION} with $NUM_CPU CPU"
-make -j$(($NUM_CPU - 1)) || { echo "OpenCV ${OPENCV_VERSION} failure!"; exit 1; }
-
-#make install || { echo "OpenCV ${OPENCV_VERSION} failure!"; exit 1; }
-#ldconfig
-
-echo "Clean OpenCV installation"
-
-# cleaning (frees 300 MB)
-#make clean
+# install the packages and their dependencies
+dpkg -i --force-depends *.deb
+apt-get update 
+apt-get install -y -f --no-install-recommends
+dpkg -i *.deb
 rm -rf /var/lib/apt/lists/*
 apt-get clean
-# Remove OpenCV folder
-#rm -R $OPENCV_FOLDER
 
-echo "Installed OpenCV ${OPENCV_VERSION} on $ARCH"
+# remove the original downloads
+cd ../
+rm -rf opencv
+
+# manage some install paths
+PYTHON3_VERSION=`python3 -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))'`
+
+if [ $ARCH = "aarch64" ]; then
+	local_include_path="/usr/local/include/opencv4"
+	local_python_path="/usr/local/lib/python${PYTHON3_VERSION}/dist-packages/cv2"
+
+	if [ -d "$local_include_path" ]; then
+		echo "$local_include_path already exists, replacing..."
+		rm -rf $local_include_path
+	fi
+	
+	if [ -d "$local_python_path" ]; then
+		echo "$local_python_path already exists, replacing..."
+		rm -rf $local_python_path
+	fi
+	
+	ln -s /usr/include/opencv4 $local_include_path
+	ln -s /usr/lib/python${PYTHON3_VERSION}/dist-packages/cv2 $local_python_path
+	
+elif [ $ARCH = "x86_64" ]; then
+	opencv_conda_path="/opt/conda/lib/python${PYTHON3_VERSION}/site-packages/cv2"
+	
+	if [ -d "$opencv_conda_path" ]; then
+		echo "$opencv_conda_path already exists, replacing..."
+		rm -rf $opencv_conda_path
+		ln -s /usr/lib/python${PYTHON3_VERSION}/site-packages/cv2 $opencv_conda_path
+	fi
+fi
 
 # test importing cv2
-#echo "testing cv2 module under python..."
-#python3 -c "import cv2; print('OpenCV version:', str(cv2.__version__)); print(cv2.getBuildInformation())"
+echo "testing cv2 module under python..."
+python3 -c "import cv2; print('OpenCV version:', str(cv2.__version__)); print(cv2.getBuildInformation())"
