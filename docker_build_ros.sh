@@ -55,6 +55,7 @@ usage()
     echo "${bold}OPTIONS:${reset}"
     echo " --buildx                        Use docker buildx" >&2
     echo " --push                          Push docker image" >&2
+    echo " --extract                       Extract OpenCV tar ball from docker" >&2
     echo " --ci                            Run build in CI (without cash and pull a latest base image)" >&2
     echo " --base [NAME]                   Build from base image. Default: ${bold}$BUILD_BASE${reset}" >&2
     echo " --multiarch                     Build in multiarch (ARM64 and AMD64)" >&2
@@ -84,6 +85,7 @@ main()
     local CI_BUILD=false
     local PUSH=false
     local BUILDX=""
+    local EXTRACT=false
     # Autoselect mode
     local ARCH=$(uname -i)
     if [ "$ARCH" == "x86_64" ] ; then
@@ -127,6 +129,9 @@ main()
             --push)
                 PUSH=true
                 ;;
+            --extract)
+                EXTRACT=true
+                ;;
             *)
                 usage "[ERROR] Unknown option: $2" >&2
                 exit 1
@@ -148,6 +153,7 @@ main()
         fi
     fi
 
+    # Build options for docker
     local multiarch_option=""
     local push_value=""
     local CI_OPTIONS=""
@@ -177,6 +183,7 @@ main()
         fi
     fi
 
+    # Build tag name
     local TAG="$option"
     if [ $option = "humble" ] ; then
         local TAG="humble-$BUILD_BASE"
@@ -189,14 +196,28 @@ main()
         fi
     fi
 
+    # copy deb packages to jetson-containers/packages directory
+    if [ $option = "opencv" ] && $EXTRACT ; then
+        local architecture=$(uname -i)
+        local OPENCV_PACKAGE="OpenCV-${CUDA_VERSION}-${architecture}.tar.gz"
+
+        docker run
+                --rm \
+                --volume $PWD:/mount \
+                $docker_image_name:$TAG \
+                cp opencv/build/$OPENCV_PACKAGE /mount
+            
+        echo "OpenCV package is at ${bold}$PWD/$OPENCV_PACKAGE${reset}"
+
+        exit 0
+    fi
+
     # Options
     if [ $option = "help" ] || [ $option = "-h" ]; then
         usage
         exit 0
     elif [ $option = "opencv" ] ; then
-        # Load OpenCV version
-        local OPENCV_VERSION="4.5.0"
-        #### DEVEL #############
+        #### OpenCV #############
         message_start $PUSH $CI_BUILD $TAG
         echo " - ${bold}OPENCV${reset} image"
         echo " - BASE_DIST=${green}$BASE_DIST${reset}"
@@ -207,6 +228,7 @@ main()
             $push_value \
             $CI_OPTIONS \
             -t $docker_image_name:$TAG \
+            -t $docker_image_name:$TAG-$OPENCV_VERSION \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             --build-arg OPENCV_VERSION=$OPENCV_VERSION \
