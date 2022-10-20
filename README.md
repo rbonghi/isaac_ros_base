@@ -21,6 +21,7 @@ All images are based with:
 | Software | Version |
 |----------|:-------:|
 | Ubuntu   | 20.04   |
+| L4T      | 35.1    |
 | CUDA     | 11.4    |
 | OpenCV   | 4.5.0 with CUDA  |
 | TensorRT | 8.4     |
