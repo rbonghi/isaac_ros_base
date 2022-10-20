@@ -46,21 +46,24 @@ usage()
     local name=$(basename ${0})
     echo "$name isaac_ros_base for different architectures." >&2
     echo "${bold}Commands:${reset}" >&2
-    echo "  $name help                     This help" >&2
-    echo "  $name opencv [OPTIONS ...]     Build opencv image" >&2
-    echo "  $name devel [OPTIONS ...]      Build devel image" >&2
-    echo "  $name runtime [OPTIONS ...]    Build runtime image" >&2
-    echo "  $name humble [OPTIONS ...]     Build ROS2 humble image" >&2
+    echo "  $name help                          This help" >&2
+    echo "  $name opencv [OPTIONS ...]          Build opencv image" >&2
+    echo "  $name devel [OPTIONS ...]           Build devel image" >&2
+    echo "  $name runtime [OPTIONS ...]         Build runtime image" >&2
+    echo "  $name humble [BASE] [OPTIONS ...]   Build ROS2 humble image" >&2
     echo
-    echo "${bold}OPTIONS:${reset}"
-    echo " --buildx                        Use docker buildx" >&2
-    echo " --push                          Push docker image" >&2
-    echo " --extract                       Extract OpenCV tar ball from docker" >&2
-    echo " --ci                            Run build in CI (without cash and pull a latest base image)" >&2
-    echo " --base [NAME]                   Build from base image. Default: ${bold}$BUILD_BASE${reset}" >&2
-    echo " --multiarch                     Build in multiarch (ARM64 and AMD64)" >&2
-    echo " --arm64                         Build for arm64 architecture" >&2
-    echo " --amd64                         Build for x86_64 architecture" >&2
+    echo "${bold}BASE:${reset}" >&2
+    echo " core                                 Ros core packages" >&2
+    echo " base                                 Ros base packages" >&2
+    echo "${bold}OPTIONS:${reset}" >&2
+    echo " --buildx                             Use docker buildx" >&2
+    echo " --push                               Push docker image" >&2
+    echo " --extract                            Extract OpenCV tar ball from docker" >&2
+    echo " --ci                                 Run build in CI (without cash and pull a latest base image)" >&2
+    echo " --base [NAME]                        Build from base image. Default: ${bold}$BUILD_BASE${reset}" >&2
+    echo " --multiarch                          Build in multiarch (ARM64 and AMD64)" >&2
+    echo " --arm64                              Build for arm64 architecture" >&2
+    echo " --amd64                              Build for x86_64 architecture" >&2
 }
 
 message_start()
@@ -104,6 +107,25 @@ main()
         usage
         exit 0
     fi
+
+    local ROS_PKG=""
+    if [ $option = "humble" ] ; then
+        case "$2" in
+            core)
+                ROS_PKG=core
+                shift 1
+                ;;
+            base)
+                ROS_PKG=base
+                shift 1
+                ;;
+            *)
+                usage "[ERROR] Unknown option: $2" >&2
+                exit 1
+                ;;
+        esac
+    fi
+
     # Load all arguments except the first one
     while [ -n "$2" ]; do
         case "$2" in
@@ -185,9 +207,6 @@ main()
 
     # Build tag name
     local TAG="$option"
-    if [ $option = "humble" ] ; then
-        local TAG="humble-core-$BUILD_BASE"
-    fi
 
     # copy deb packages to jetson-containers/packages directory
     if [ $option = "opencv" ] && $EXTRACT ; then
@@ -276,11 +295,12 @@ main()
 
         exit 0
     elif [ $option = "humble" ] ; then
-
+        # Humble reference
+        TAG="humble-$ROS_PKG-$BUILD_BASE"
         BASE_IMAGE=$docker_image_name:$BUILD_BASE
         #### HUMBLE #############
         message_start $PUSH $CI_BUILD $TAG
-        echo " - ${bold}HUMBLE${reset} image"
+        echo " - ${bold}HUMBLE ${green}$ROS_PKG${reset} image"
         echo " - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
 
         docker ${BUILDX} build \
@@ -289,7 +309,7 @@ main()
             -t $docker_image_name:$TAG \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             $multiarch_option \
-            -f Dockerfile.humble \
+            -f Dockerfile.humble.$ROS_PKG \
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
 
         exit 0
