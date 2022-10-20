@@ -188,11 +188,7 @@ main()
             multiarch_option="--platform linux/amd64"
         fi
         # Buildx push option
-        if $PUSH ; then
-            push_value="--push"
-        else
-            push_value="--load"
-        fi
+        push_value="--push"
     else
         if $PUSH ; then
             push_value="--push"
