@@ -248,10 +248,10 @@ main()
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
         
         exit 0
-    elif [ $option = "devel" ] ; then
+    elif [ $option = "devel" ] || [ $option = "runtime" ] ; then
         #### DEVEL #############
         message_start $PUSH $CI_BUILD $TAG
-        echo " - ${bold}DEVEL${reset} image"
+        echo " - ${bold}${option^^}${reset} image"
         echo " - BASE_DIST=${green}$BASE_DIST${reset}"
         echo " - CUDA_VERSION=${green}$CUDA_VERSION${reset}"
         echo " - OPENCV_VERSION=${green}$OPENCV_VERSION${reset}"
@@ -265,30 +265,9 @@ main()
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             --build-arg OPENCV_VERSION="$OPENCV_VERSION" \
             $multiarch_option \
-            -f Dockerfile.devel \
+            -f Dockerfile.$option \
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
         
-        exit 0
-    elif [ $option = "runtime" ] ; then
-        #### RUNTIME #############
-        message_start $PUSH $CI_BUILD $TAG
-        echo " - ${bold}RUNTIME${reset} image"
-        echo " - BASE_DIST=${green}$BASE_DIST${reset}"
-        echo " - CUDA_VERSION=${green}$CUDA_VERSION${reset}"
-        echo " - OPENCV_VERSION=${green}$OPENCV_VERSION${reset}"
-
-        docker ${BUILDX} build \
-            $push_value \
-            $CI_OPTIONS \
-            -t $docker_image_name:$TAG \
-            -t $docker_image_name:$TAG-$OPENCV_VERSION-$CUDA_VERSION-$BASE_DIST \
-            --build-arg BASE_DIST="$BASE_DIST" \
-            --build-arg CUDA_VERSION="$CUDA_VERSION" \
-            --build-arg OPENCV_VERSION="$OPENCV_VERSION" \
-            $multiarch_option \
-            -f Dockerfile.runtime \
-            . || { echo "${red}docker build failure!${reset}"; exit 1; }
-
         exit 0
     elif [ $option = "humble" ] ; then
         # Humble reference
@@ -296,7 +275,7 @@ main()
         BASE_IMAGE=$docker_image_name:$BUILD_BASE
         #### HUMBLE #############
         message_start $PUSH $CI_BUILD $TAG
-        echo " - ${bold}HUMBLE ${green}$ROS_PKG${reset} image"
+        echo " - ${bold}HUMBLE ${green}${ROS_PKG^^}${reset} image"
         echo " - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
 
         docker ${BUILDX} build \
