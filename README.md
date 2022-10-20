@@ -22,7 +22,7 @@ All images are based with:
 |----------|:-------:|
 | Ubuntu   | 20.04   |
 | CUDA     | 11.4    |
-| OpenCV   | 4.5.0   |
+| OpenCV   | 4.5.0 with CUDA  |
 | TensorRT | 8.4     |
 | Triton   | 2.24.0  |
 
@@ -30,8 +30,8 @@ Images:
 
 | Name                                  | AMD64 | ARM64 |
 |---------------------------------------|:-----:|:-----:|
-| `rbonghi/isaac_ros_base:humble-core-devel`       | Soon   | Soon   |
-| `rbonghi/isaac_ros_base:humble-base-devel` | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |
+| `rbonghi/isaac_ros_base:humble-core-devel` | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-core-devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-core-devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |
+| `rbonghi/isaac_ros_base:humble-base-devel`       | Soon   | Soon   |
 
 # Work with Isaac ROS base
 Example to build Isaac ROS packages multiplatform
