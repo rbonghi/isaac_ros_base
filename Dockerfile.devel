@@ -39,95 +39,40 @@ ARG TRITON_VERSION=2.24.0
 # Disable terminal interaction for apt
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SHELL /bin/bash
-SHELL ["/bin/bash", "-c"] 
+SHELL ["/bin/bash", "-c"]
+
+# ROS2 Humble installation
+# https://docs.ros.org/en/humble/Installation/Alternatives/Ubuntu-Development-Setup.html
 
 # Fundamentals
 RUN apt-get update && apt-get install -y \
-        apt-transport-https \
+        locales \
+        software-properties-common \
         build-essential \
         cmake \
-        curl \
         git \
         git-lfs \
-        lsb-release \
-        tar \
-        unzip \
         wget \
+        unzip \
+        curl \
         gnupg \
-        gnupg2 \
-        ca-certificates \
-        libgoogle-glog-dev \
-        software-properties-common \
-        locales \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-# upgrade cmake - https://stackoverflow.com/a/56690743
-# this is needed to build some of the ROS2 packages
-RUN wget -qO - https://apt.kitware.com/keys/kitware-archive-latest.asc | apt-key add - \
-    && apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends --only-upgrade \
-        cmake \
-    && cmake --version \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-# Python basics
-RUN apt-get update && apt-get install -y \
+        # Python requirements
         python3 \
-        python3-flake8 \
         python3-pip \
-        python3-pytest-cov \
-        python3-setuptools \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# remove other versions of Python3
-# workaround for 'Could NOT find Python3 (missing: Python3_NumPy_INCLUDE_DIRS Development'
-RUN apt purge -y python3.9 libpython3.9* || echo "python3.9 not found, skipping removal" \
-    && ls -ll /usr/bin/python*
+# change the locale from POSIX to UTF-8
+RUN locale-gen en_US en_US.UTF-8 && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV PYTHONIOENCODING=utf-8
 
 # Set Python3 as default
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
-# Install additional packages needed for ROS2 dependencies
-RUN apt-get update && apt-get install -y \
-        python3-distutils \
-        libboost-all-dev \
-        libboost-dev \
-        libpcl-dev \
-        libode-dev \
-        lcov \
-        python3-zmq \
-        libxaw7-dev \
-        libgraphicsmagick++1-dev \
-        graphicsmagick-libmagick-dev-compat \
-        libceres-dev \
-        libsuitesparse-dev \
-        libncurses5-dev \
-        libassimp-dev \
-        libyaml-cpp-dev \
-        libpcap-dev \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-# sklearn dependencies
-RUN apt-get update && apt-get install -y \
-        gfortran \
-        libatlas-base-dev \
-        python3-scipy \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-# sklearn Python dependencies
+# Python dependencies
 RUN python3 -m pip install -U \
-    Cython \
-    wheel
-
-# Install sklearn
-RUN python3 -m pip install -U \
-    scikit-learn
+        numpy
 
 ########### Sources and main Jetson repo ###################
 
@@ -168,56 +113,7 @@ COPY --from=opencv_builder /OpenCV.tar.gz /opt/OpenCV.tar.gz
 # Install OpenCV on system
 COPY scripts/install_opencv.sh /opt/install_opencv.sh
 RUN TERM=xterm bash /opt/install_opencv.sh ${OPENCV_VERSION} \
-    && rm /opt/install_opencv.sh
-
-############################################################
-
-# PyTorch (NV CUDA edition)
-# https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html
-RUN if [ "$(uname -m)" != "x86_64" ]; then \
-        python3 -m pip install --no-cache \
-            https://developer.download.nvidia.cn/compute/redist/jp/v50/pytorch/torch-1.13.0a0+340c4120.nv22.06-cp38-cp38-linux_aarch64.whl ; \
-    fi
-
-# Add MQTT binaries and libraries
-RUN apt-add-repository ppa:mosquitto-dev/mosquitto-ppa \
-    && apt-get update && apt-get install -y \
-        mosquitto \
-        mosquitto-clients \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-# Note: VPN cannot be on for pymongo download
-RUN python3 -m pip install -U \
-        pymongo \
-        paho-mqtt
-  
-# Core dev libraries
-RUN apt-get update && apt-get install -y \
-        libasio-dev \
-        libbullet-dev \
-        libtinyxml2-dev \
-        libcunit1-dev \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-# NPP library
-# Error on aarch64
-# dpkg: error processing archive /var/cache/apt/archives/libnpp-11-4_11.4.0.228-1_arm64.deb
-#  trying to overwrite '/usr/local/cuda-11.4/lib64', which is also in package cuda-cuxxfilt-11-4 11.4.120-1
-#RUN apt-get update && apt-get install -y --no-install-recommends \
-#        libnpp-dev-11-4 \
-#&& rm -rf /var/lib/apt/lists/* \
-#&& apt-get clean
-
-# Upgrade libc to resolve vulnerabilities including CVE-2019-11477
-RUN apt-get update && apt-get install -y --only-upgrade \
-        linux-libc-dev \      
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-# Downgrade protobuf
-RUN python3 -m pip install protobuf==3.20.1
+    && rm /opt/install_opencv.sh /opt/OpenCV.tar.gz
 
 ############################################################
 

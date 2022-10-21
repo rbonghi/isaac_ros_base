@@ -19,7 +19,7 @@
 # DEALINGS IN THE SOFTWARE.
 
 
-FROM isaac_ros/base:humble-devel
+FROM rbonghi/isaac-ros-base:humble-core-devel
 LABEL io.k8s.display-name="isaac_ros humble"
 LABEL name="isaac_ros humble"
 LABEL vendor="NVIDIA"
@@ -37,15 +37,16 @@ COPY rosinstall/isaac_ros.rosinstall isaac_ros.rosinstall
 
 RUN mkdir -p ${ISAAC_ROS_WS}/src && \
     vcs import ${ISAAC_ROS_WS}/src < isaac_ros.rosinstall
-# Pull LFS files
-COPY git_lfs_pull_ws.sh git_lfs_pull_ws.sh
-RUN TERM=xterm bash git_lfs_pull_ws.sh ${ISAAC_ROS_WS}/src
 
 # Change workdir
 WORKDIR $ISAAC_ROS_WS
 
+#ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu"
+ENV PATH="${PATH}:/usr/lib/x86_64-linux-gnu"
+
 # Build Isaac ROS
 RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
-    colcon build --symlink-install \
-    --cmake-args \
-    -DCMAKE_BUILD_TYPE=Release
+    colcon build \
+    --merge-install \
+    --symlink-install \
+    --cmake-args -DCMAKE_BUILD_TYPE=Release

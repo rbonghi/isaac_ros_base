@@ -25,34 +25,26 @@ L4T=$1
 
 echo "Adding NVIDIA sources"
 
+apt-get update
+apt-get install -y software-properties-common
 apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc
 
 if [ "$(uname -m)" = "x86_64" ]; then
-    apt-get update
-    apt-get install -y software-properties-common
-    # Clean sources
-    rm -rf /var/lib/apt/lists/*
-    apt-get clean
     # Adding sources for discrete NVIDIA GPU
     add-apt-repository "deb http://repo.download.nvidia.com/jetson/x86_64/focal r${L4T} main"
 else
     # Adding sources for NVIDIA Jetson
-    echo "deb https://repo.download.nvidia.com/jetson/common r${L4T} main" >> /etc/apt/sources.list.d/nvidia-l4t-apt-source.list
-
+    add-apt-repository "deb https://repo.download.nvidia.com/jetson/common r${L4T} main"
     # Workaround to source libraries on Docker
     echo "Installing sources jetson-multimedia-api"
-
-    cd /
-
-    apt-get update
-    apt-get download nvidia-l4t-jetson-multimedia-api
     # Manually install jetson-multimedia-api sources
-    # Package output nvidia-l4t-jetson-multimedia-api_35.1.0-20220825113828_arm64.deb
+    apt-get download nvidia-l4t-jetson-multimedia-api
+    # Package output like: nvidia-l4t-jetson-multimedia-api_35.1.0-20220825113828_arm64.deb
     dpkg -x nvidia-l4t-jetson-multimedia-api_*.deb /
-
     # Remove package
     rm nvidia-l4t-jetson-multimedia-api_*.deb
-    # Clean sources
-    rm -rf /var/lib/apt/lists/*
-    apt-get clean    
 fi
+
+# Clean sources
+rm -rf /var/lib/apt/lists/*
+apt-get clean
