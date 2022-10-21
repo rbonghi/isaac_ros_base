@@ -7,3 +7,36 @@
 - git:
     local-name: isaac_ros_image_pipeline
     uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_image_pipeline.git
+- git:
+    local-name: isaac_ros_apriltag
+    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_apriltag.git
+- git:
+    local-name: isaac_ros_visual_slam
+    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_visual_slam.git
+- git:
+    local-name: isaac_ros_proximity_segmentation
+    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_proximity_segmentation.git
+- git:
+    local-name: isaac_ros_object_detection
+    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_object_detection.git
+- git:
+    local-name: isaac_ros_dnn_inference
+    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_dnn_inference.git
+- git:
+    local-name: isaac_ros_pose_estimation
+    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_pose_estimation.git
+- git:
+    local-name: isaac_ros_mission_client
+    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_mission_client.git
+- git:
+    local-name: isaac_ros_image_segmentation
+    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_image_segmentation.git
+- git:
+    local-name: isaac_ros_dnn_stereo_disparity
+    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_dnn_stereo_disparity.git
+- git:
+    local-name: isaac_ros_compression
+    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_compression.git
+- git:
+    local-name: isaac_ros_compression
+    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_compression.git

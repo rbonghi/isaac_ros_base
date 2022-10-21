@@ -47,3 +47,7 @@ RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
     --merge-install \
     --symlink-install \
     --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+# Test all packages
+RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
+    colcon test --executor sequential
