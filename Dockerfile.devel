@@ -81,6 +81,8 @@ COPY scripts/install_nvidia_sources.sh install_nvidia_sources.sh
 RUN TERM=xterm bash install_nvidia_sources.sh ${L4T} \
     && rm install_nvidia_sources.sh
 
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/cuda/compat"
+
 ########### VPI & TensorRT #################################
 
 RUN apt-get update \

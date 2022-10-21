@@ -26,7 +26,7 @@ LABEL vendor="NVIDIA"
 LABEL version="2.0.0"
 LABEL release="N/A"
 LABEL summary="isaac_ros humble"
-LABEL description="See summary"
+LABEL description="Demo with custom Isac ROS installation"
 
 ################ INSTALL ISAAC ROS ####################
 
@@ -40,9 +40,6 @@ RUN mkdir -p ${ISAAC_ROS_WS}/src && \
 
 # Change workdir
 WORKDIR $ISAAC_ROS_WS
-
-#ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu"
-ENV PATH="${PATH}:/usr/lib/x86_64-linux-gnu"
 
 # Build Isaac ROS
 RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
