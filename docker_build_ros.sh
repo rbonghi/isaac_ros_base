@@ -212,7 +212,7 @@ main()
         docker run \
                 --rm \
                 --volume $PWD:/mount \
-                $docker_image_name:opencv-$OPENCV_VERSION-$OPENCV_VERSION-$BASE_DIST \
+                $docker_image_name:opencv-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST} \
                 cp /opt/opencv/build/$OPENCV_PACKAGE /mount
         if $? ; then
             echo "${red}Error to run the extraction${reset}"
@@ -238,8 +238,8 @@ main()
         docker ${BUILDX} build \
             $push_value \
             $CI_OPTIONS \
-            -t $docker_image_name:opencv-$OPENCV_VERSION \
-            -t $docker_image_name:opencv-$OPENCV_VERSION-$CUDA_VERSION-$BASE_DIST \
+            -t $docker_image_name:opencv-${OPENCV_VERSION} \
+            -t $docker_image_name:opencv-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST} \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             --build-arg OPENCV_VERSION="$OPENCV_VERSION" \
@@ -260,7 +260,7 @@ main()
             $push_value \
             $CI_OPTIONS \
             -t $docker_image_name:$TAG \
-            -t $docker_image_name:$TAG-$OPENCV_VERSION-$CUDA_VERSION-$BASE_DIST \
+            -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST} \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             --build-arg OPENCV_VERSION="$OPENCV_VERSION" \

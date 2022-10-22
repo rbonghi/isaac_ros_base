@@ -75,24 +75,24 @@ RUN mkdir -p ${ROS_ROOT}/src \
     && cd ${ROS_ROOT} \
     # https://answers.ros.org/question/325245/minimal-ros2-installation/?answer=325249#post-id-325249
     && rosinstall_generator --deps --rosdistro ${ROS_DISTRO} ${ROS_PKG} \
-		launch_xml \
-		launch_yaml \
-		launch_testing \
-		launch_testing_ament_cmake \
-		demo_nodes_cpp \
-		demo_nodes_py \
-		example_interfaces \
-		camera_calibration_parsers \
-		camera_info_manager \
-		cv_bridge \
-		v4l2_camera \
-		vision_opencv \
-		vision_msgs \
-		image_geometry \
-		image_pipeline \
-		image_transport \
-		compressed_image_transport \
-		compressed_depth_image_transport \
+        launch_xml \
+        launch_yaml \
+        launch_testing \
+        launch_testing_ament_cmake \
+        demo_nodes_cpp \
+        demo_nodes_py \
+        example_interfaces \
+        camera_calibration_parsers \
+        camera_info_manager \
+        cv_bridge \
+        v4l2_camera \
+        vision_opencv \
+        vision_msgs \
+        image_geometry \
+        image_pipeline \
+        image_transport \
+        compressed_image_transport \
+        compressed_depth_image_transport \
         angles \
         behaviortree_cpp_v3 \
         bondcpp \

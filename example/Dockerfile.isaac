@@ -32,11 +32,52 @@ LABEL description="Demo with custom Isac ROS installation"
 
 # Download and build isaac_ros
 ENV ISAAC_ROS_WS /opt/isaac_ros_ws
-# Copy wstool isaac_ros.rosinstall
-COPY rosinstall/isaac_ros.rosinstall isaac_ros.rosinstall
 
+###### Dependencies - Isaac ROS test ##################
+
+# sklearn dependencies
+RUN apt-get update && apt-get install -y \
+        gfortran \
+        libatlas-base-dev \
+        python3-scipy \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# sklearn Python dependencies
+RUN python3 -m pip install -U \
+    Cython \
+    wheel
+
+# Install sklearn
+RUN python3 -m pip install -U \
+    scikit-learn
+
+###### Dependencies - Isaac ROS mission client ########
+
+# Add MQTT binaries and libraries
+RUN apt-add-repository ppa:mosquitto-dev/mosquitto-ppa \
+    && apt-get update && apt-get install -y \
+        mosquitto \
+        mosquitto-clients \
+&& rm -rf /var/lib/apt/lists/* \
+&& apt-get clean
+
+# Note: VPN cannot be on for pymongo download
+RUN python3 -m pip install -U \
+        pymongo \
+        paho-mqtt
+
+###### Isaac ROS - packages  ##########################
+
+# Copy wstool isaac_ros.rosinstall
+COPY rosinstall/isaac_ros_all.rosinstall isaac_ros_all.rosinstall
+# Clone all packages from rosinstall
 RUN mkdir -p ${ISAAC_ROS_WS}/src && \
-    vcs import ${ISAAC_ROS_WS}/src < isaac_ros.rosinstall
+    vcs import ${ISAAC_ROS_WS}/src < isaac_ros_all.rosinstall
+# Add Argus camera repo if on aarch64
+RUN if [ "$(uname -m)" = "aarch64" ]; then \
+        git -C ${ISAAC_ROS_WS}/src clone https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_argus_camera.git ; \
+    fi
 
 # Change workdir
 WORKDIR $ISAAC_ROS_WS
@@ -50,4 +91,4 @@ RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
 
 # Test all packages
 RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
-    colcon test --executor sequential
+    colcon test --merge-install --executor sequential
