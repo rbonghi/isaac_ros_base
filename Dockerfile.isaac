@@ -1,0 +1,104 @@
+# Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+
+
+ARG BASE_IMAGE=rbonghi/isaac-ros-base:humble-core-devel
+FROM ${BASE_IMAGE}
+LABEL io.k8s.display-name="isaac_ros humble"
+LABEL name="isaac_ros humble"
+LABEL vendor="NVIDIA"
+LABEL version="2.0.0"
+LABEL release="N/A"
+LABEL summary="isaac_ros humble"
+LABEL description="All Isaac ROS packages built"
+
+################ INSTALL ISAAC ROS ####################
+
+# sklearn dependencies
+RUN apt-add-repository ppa:mosquitto-dev/mosquitto-ppa \
+    && apt-get update \
+    && apt-get install -y \
+        gfortran \
+        libatlas-base-dev \
+        python3-scipy \
+        # Add MQTT binaries and libraries
+        mosquitto \
+        mosquitto-clients \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# sklearn Python dependencies
+# Note: VPN cannot be on for pymongo download
+RUN python3 -m pip install -U \
+    Cython \ 
+    wheel \
+    pymongo \
+    paho-mqtt
+
+# Install sklearn
+RUN python3 -m pip install -U \
+    scikit-learn
+
+###### Isaac ROS - packages  ##########################
+
+# Copy wstool isaac_ros.rosinstall
+COPY scripts/rosinstall/isaac_ros_all.rosinstall ${ROS_ROOT}/isaac_ros_all.rosinstall
+# Clone all packages from rosinstall
+RUN mkdir -p ${ROS_ROOT}/src \
+    && cd ${ROS_ROOT} \
+    && rosinstall_generator --deps --rosdistro ${ROS_DISTRO} \
+        rcl \
+        behaviortree_cpp_v3 \
+        slam_toolbox \
+        ompl \
+        navigation2 \
+        nav2 \
+    > ros2.${ROS_DISTRO}.${ROS_PKG}.rosinstall \
+    && cat ros2.${ROS_DISTRO}.${ROS_PKG}.rosinstall \
+    && vcs import src < ros2.${ROS_DISTRO}.${ROS_PKG}.rosinstall \
+    # Import also all Isaac ROS packages
+    && vcs import ${ROS_ROOT}/src < isaac_ros_all.rosinstall \
+    && rm ${ROS_ROOT}/*.rosinstall \
+    # Add Argus camera repo if on aarch64
+    && if [ "$(uname -m)" = "aarch64" ]; then \
+        git -C ${ROS_ROOT}/src clone https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_argus_camera.git ; \
+    fi
+
+# Install dependencies using rosdep
+RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
+    cd ${ROS_ROOT} \
+    && apt-get update \
+    && rosdep install -y \
+        --ignore-src \
+        --from-paths src \
+        --rosdistro ${ROS_DISTRO} \
+        --skip-keys "fastcdr rti-connext-dds-6.0.1 urdfdom_headers libopencv-dev libopencv-contrib-dev libopencv-imgproc-dev python-opencv python3-opencv ament_python nav2_bringup nav2_recoveries rcl_yaml_parser h264_msgs OpenCV" \
+    && rm -Rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Build Isaac ROS and clean resources
+RUN cd ${ROS_ROOT} \
+    && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release --packages-up-to behaviortree_cpp_v3 \
+    && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release \
+    && rm -Rf src build log
+
+# Test all packages
+#RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
+#    colcon test --merge-install --executor sequential

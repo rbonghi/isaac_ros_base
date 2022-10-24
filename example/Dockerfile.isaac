@@ -70,10 +70,10 @@ RUN python3 -m pip install -U \
 ###### Isaac ROS - packages  ##########################
 
 # Copy wstool isaac_ros.rosinstall
-COPY rosinstall/isaac_ros_all.rosinstall isaac_ros_all.rosinstall
+COPY isaac_ros.rosinstall isaac_ros.rosinstall
 # Clone all packages from rosinstall
 RUN mkdir -p ${ISAAC_ROS_WS}/src && \
-    vcs import ${ISAAC_ROS_WS}/src < isaac_ros_all.rosinstall
+    vcs import ${ISAAC_ROS_WS}/src < isaac_ros.rosinstall
 # Add Argus camera repo if on aarch64
 RUN if [ "$(uname -m)" = "aarch64" ]; then \
         git -C ${ISAAC_ROS_WS}/src clone https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_argus_camera.git ; \

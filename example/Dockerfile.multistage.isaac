@@ -26,7 +26,7 @@ FROM isaac_ros/base:humble-devel as builder
 # Download and build isaac_ros
 ENV ISAAC_ROS_WS /opt/isaac_ros_ws
 # Copy wstool isaac_ros.rosinstall
-COPY rosinstall/isaac_ros.rosinstall isaac_ros.rosinstall
+COPY isaac_ros.rosinstall isaac_ros.rosinstall
 
 RUN mkdir -p ${ISAAC_ROS_WS}/src && \
     vcs import ${ISAAC_ROS_WS}/src < isaac_ros.rosinstall

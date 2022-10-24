@@ -22,6 +22,8 @@
 ARG BASE_IMAGE=rbonghi/isaac-ros-base:devel
 FROM ${BASE_IMAGE}
 
+# ROS distributions
+# https://discourse.ros.org/t/core-base-and-desktop-releases/20267
 ARG ROS_PKG=ros_core
 ENV ROS_DISTRO=humble
 ENV ROS_ROOT=/opt/ros/${ROS_DISTRO}
@@ -73,7 +75,6 @@ RUN echo "Warning: Using the PYTHONWARNINGS environment variable to silence setu
 # download/build ROS from source
 RUN mkdir -p ${ROS_ROOT}/src \
     && cd ${ROS_ROOT} \
-    # https://answers.ros.org/question/325245/minimal-ros2-installation/?answer=325249#post-id-325249
     && rosinstall_generator --deps --rosdistro ${ROS_DISTRO} ${ROS_PKG} \
         launch_xml \
         launch_yaml \
@@ -86,31 +87,23 @@ RUN mkdir -p ${ROS_ROOT}/src \
         camera_info_manager \
         cv_bridge \
         v4l2_camera \
+        diagnostic_updater \
         vision_opencv \
         vision_msgs \
+        sensor_msgs \
         image_geometry \
         image_pipeline \
         image_transport \
+        image_transport_plugins \
         compressed_image_transport \
         compressed_depth_image_transport \
         angles \
-        behaviortree_cpp_v3 \
-        bondcpp \
-        diagnostic_updater \
-        example_interfaces \
-        image_transport_plugins \
-        nav2_msgs \
-        ompl \
         resource_retriever \
-        sensor_msgs \
-        slam_toolbox \
+        bondcpp \
         > ros2.${ROS_DISTRO}.${ROS_PKG}.rosinstall \
     && cat ros2.${ROS_DISTRO}.${ROS_PKG}.rosinstall \
     && vcs import src < ros2.${ROS_DISTRO}.${ROS_PKG}.rosinstall \
     && rm ${ROS_ROOT}/*.rosinstall \
-    # https://github.com/dusty-nv/jetson-containers/issues/181
-    && rm -r ${ROS_ROOT}/src/ament_cmake \
-    && git -C ${ROS_ROOT}/src/ clone https://github.com/ament/ament_cmake -b ${ROS_DISTRO} \
     # Adding negotiated
     && git -C ${ROS_ROOT}/src/ clone https://github.com/osrf/negotiated -b master
 
@@ -129,7 +122,6 @@ RUN cd ${ROS_ROOT} \
 
 # Build ROS2 source
 RUN cd ${ROS_ROOT} \
-    && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release --packages-up-to behaviortree_cpp_v3 \
     && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release --packages-up-to-regex negotiated* \
     && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release \
     && rm -Rf src build log
