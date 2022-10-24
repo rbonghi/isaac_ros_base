@@ -64,7 +64,6 @@ COPY scripts/rosinstall/isaac_ros_all.rosinstall ${ROS_ROOT}/isaac_ros_all.rosin
 RUN mkdir -p ${ROS_ROOT}/src \
     && cd ${ROS_ROOT} \
     && rosinstall_generator --deps --rosdistro ${ROS_DISTRO} \
-        rcl \
         behaviortree_cpp_v3 \
         slam_toolbox \
         ompl \
