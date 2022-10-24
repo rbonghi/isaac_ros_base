@@ -51,7 +51,7 @@ usage()
     echo "  $name devel [OPTIONS ...]           Build devel image" >&2
     echo "  $name runtime [OPTIONS ...]         Build runtime image" >&2
     echo "  $name humble [BASE] [OPTIONS ...]   Build ROS2 humble image" >&2
-    echo "  $name isaac [OPTIONS ...]           Build all Isaac ROS packages in a image" >&2
+    echo "  $name gems [OPTIONS ...]            Build all Isaac ROS packages in a image" >&2
     echo
     echo "${bold}BASE:${reset}" >&2
     echo " core                                 Ros core packages" >&2
@@ -289,9 +289,9 @@ main()
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
 
         exit 0
-    elif [ $option = "isaac" ] ; then
+    elif [ $option = "gems" ] ; then
         # tag and image reference
-        TAG="isaac-$BUILD_BASE"
+        TAG="gems-$BUILD_BASE"
         BASE_IMAGE=$docker_image_name:humble-core-$BUILD_BASE
         #### Message #############
         message_start $PUSH $CI_BUILD $TAG
