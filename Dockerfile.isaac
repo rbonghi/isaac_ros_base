@@ -78,11 +78,10 @@ RUN mkdir -p ${ROS_ROOT}/src \
     # Add Argus camera repo if on aarch64
     && if [ "$(uname -m)" = "aarch64" ]; then \
         git -C ${ROS_ROOT}/src clone https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_argus_camera.git ; \
-    fi
-
-# Install dependencies using rosdep
-RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
-    cd ${ROS_ROOT} \
+    fi \
+    # Install dependencies using rosdep
+    # Load variable ROS2
+    && . /opt/ros/$ROS_DISTRO/install/setup.sh && \
     && apt-get update \
     && rosdep install -y \
         --ignore-src \
@@ -90,10 +89,8 @@ RUN . /opt/ros/$ROS_DISTRO/install/setup.sh && \
         --rosdistro ${ROS_DISTRO} \
         --skip-keys "fastcdr rti-connext-dds-6.0.1 urdfdom_headers libopencv-dev libopencv-contrib-dev libopencv-imgproc-dev python-opencv python3-opencv ament_python nav2_bringup nav2_recoveries rcl_yaml_parser h264_msgs OpenCV" \
     && rm -Rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-# Build Isaac ROS and clean resources
-RUN cd ${ROS_ROOT} \
+    && apt-get clean \
+    # Build Isaac ROS and clean resources
     && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release --packages-up-to behaviortree_cpp_v3 \
     && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release \
     && rm -Rf src build log

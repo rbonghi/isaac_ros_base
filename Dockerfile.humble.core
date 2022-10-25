@@ -49,10 +49,9 @@ RUN apt-get update && \
         python3-vcstool \
         python3-rosinstall-generator \
     && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-# Python dependencies
-RUN python3 -m pip install -U \
+    && apt-get clean \
+    # Python dependencies
+    && python3 -m pip install -U \
         flake8-blind-except \
         flake8-builtins \
         flake8-class-newline \
@@ -70,7 +69,7 @@ RUN python3 -m pip install -U \
 # Avoid setup.py and easy_install deprecation warnings caused by colcon and setuptools
 # https://github.com/colcon/colcon-core/issues/454
 ENV PYTHONWARNINGS=ignore:::setuptools.command.install,ignore:::setuptools.command.easy_install,ignore:::pkg_resources
-RUN echo "Warning: Using the PYTHONWARNINGS environment variable to silence setup.py and easy_install deprecation warnings caused by colcon"
+# RUN echo "Warning: Using the PYTHONWARNINGS environment variable to silence setup.py and easy_install deprecation warnings caused by colcon"
 
 # download/build ROS from source
 RUN mkdir -p ${ROS_ROOT}/src \
@@ -105,10 +104,8 @@ RUN mkdir -p ${ROS_ROOT}/src \
     && vcs import src < ros2.${ROS_DISTRO}.${ROS_PKG}.rosinstall \
     && rm ${ROS_ROOT}/*.rosinstall \
     # Adding negotiated
-    && git -C ${ROS_ROOT}/src/ clone https://github.com/osrf/negotiated -b master
-
-# Install dependencies using rosdep
-RUN cd ${ROS_ROOT} \
+    && git -C ${ROS_ROOT}/src/ clone https://github.com/osrf/negotiated -b master \
+    # Install dependencies using rosdep
     && apt-get update \
     && rosdep init \
     && rosdep update \
@@ -118,10 +115,8 @@ RUN cd ${ROS_ROOT} \
         --rosdistro ${ROS_DISTRO} \
         --skip-keys "fastcdr rti-connext-dds-6.0.1 urdfdom_headers libopencv-dev libopencv-contrib-dev libopencv-imgproc-dev python-opencv python3-opencv" \
     && rm -Rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-# Build ROS2 source
-RUN cd ${ROS_ROOT} \
+    && apt-get clean \
+    # Build ROS2 source
     && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release --packages-up-to-regex negotiated* \
     && colcon build --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release \
     && rm -Rf src build log

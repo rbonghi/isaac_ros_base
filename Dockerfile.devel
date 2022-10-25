@@ -81,7 +81,10 @@ COPY scripts/install_nvidia_sources.sh install_nvidia_sources.sh
 RUN TERM=xterm bash install_nvidia_sources.sh ${L4T} \
     && rm install_nvidia_sources.sh
 
+# Where are located CUDA libraries for VPI in x86_64
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/cuda/compat"
+# Where are located argus libraries for aarch64
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/lib/aarch64-linux-gnu/tegra:/usr/lib/aarch64-linux-gnu/tegra-egl"
 
 ########### VPI & TensorRT #################################
 

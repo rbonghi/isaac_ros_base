@@ -40,6 +40,7 @@ dpkg -i --force-depends *.deb
 apt-get update 
 apt-get install -y -f --no-install-recommends
 dpkg -i *.deb
+# Clean apt sources
 rm -rf /var/lib/apt/lists/*
 apt-get clean
 
