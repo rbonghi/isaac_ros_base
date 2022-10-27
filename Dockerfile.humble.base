@@ -40,7 +40,6 @@ RUN mkdir -p ${ROS_ROOT}/src \
     && rm ${ROS_ROOT}/*.rosinstall \
     # Install dependencies using rosdep
     && apt-get update \
-    && rosdep init \
     && rosdep update \
     && rosdep install -y \
         --ignore-src \

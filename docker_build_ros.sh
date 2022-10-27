@@ -34,7 +34,7 @@ reset=`tput sgr0`
 docker_image_name=rbonghi/isaac-ros-base
 BASE_DIST=ubuntu20.04
 CUDA_VERSION=11.4.1
-OPENCV_VERSION=4.5.0
+OPENCV_VERSION=4.6.0
 BUILD_BASE=devel
 
 usage()
@@ -273,7 +273,14 @@ main()
     elif [ $option = "humble" ] ; then
         # Humble reference
         TAG="humble-$ROS_PKG-$BUILD_BASE"
-        BASE_IMAGE=$docker_image_name:$BUILD_BASE
+        if [ $ROS_PKG = "core" ] ; then
+            BASE_IMAGE=$docker_image_name:$BUILD_BASE
+        elif [ $ROS_PKG = "base" ] ; then
+            BASE_IMAGE=$docker_image_name:humble-core-$BUILD_BASE
+        else
+            echo "${red}Error base image!${reset}"
+            exit 1
+        fi
         #### HUMBLE #############
         message_start $PUSH $CI_BUILD $TAG
         echo " - ${bold}HUMBLE ${green}${ROS_PKG^^}${reset} image"
@@ -283,6 +290,7 @@ main()
             $push_value \
             $CI_OPTIONS \
             -t $docker_image_name:$TAG \
+            -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST} \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             $multiarch_option \
             -f Dockerfile.humble.$ROS_PKG \
@@ -292,7 +300,7 @@ main()
     elif [ $option = "gems" ] ; then
         # tag and image reference
         TAG="gems-$BUILD_BASE"
-        BASE_IMAGE=$docker_image_name:humble-core-$BUILD_BASE
+        BASE_IMAGE=$docker_image_name:humble-base-$BUILD_BASE
         #### Message #############
         message_start $PUSH $CI_BUILD $TAG
         echo " - ${bold}${option^^}${reset} image"
@@ -302,6 +310,7 @@ main()
             $push_value \
             $CI_OPTIONS \
             -t $docker_image_name:$TAG \
+            -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST} \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             $multiarch_option \
             -f Dockerfile.isaac \

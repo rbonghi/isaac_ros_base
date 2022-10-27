@@ -19,7 +19,7 @@
 # DEALINGS IN THE SOFTWARE.
 
 
-ARG BASE_IMAGE=rbonghi/isaac-ros-base:humble-core-devel
+ARG BASE_IMAGE=rbonghi/isaac-ros-base:humble-base-devel
 FROM ${BASE_IMAGE}
 LABEL io.k8s.display-name="isaac_ros humble"
 LABEL name="isaac_ros humble"
@@ -66,12 +66,11 @@ RUN mkdir -p ${ROS_ROOT}/src \
         slam_toolbox \
         ompl \
         navigation2 \
-        nav2 \
         > ros2.${ROS_DISTRO}.${ROS_PKG}.rosinstall \
     && cat ros2.${ROS_DISTRO}.${ROS_PKG}.rosinstall \
     # Load variable ROS2
-    && . /opt/ros/$ROS_DISTRO/install/setup.sh \
     && apt-get update \
+    && rosdep update \
     && rosdep install -y \
         --ignore-src \
         --from-paths src \
