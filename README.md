@@ -40,7 +40,7 @@ Images:
 
 Example to build Isaac ROS packages multi-platform
 
-```
+```bash
 cd example
 docker build -t isaac-ros-base/packages:latest -f Dockerfile.isaac .
 ```
