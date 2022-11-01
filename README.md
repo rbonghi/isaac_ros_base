@@ -4,7 +4,7 @@
 
 Multi architecture cross compilable Isaac ROS for x86 and NVIDIA Jetson with **Jetpack 5.0+**
 
-# Requirements
+## Requirements
 
 To build these NVIDIA Docker you can choose one of these options:
 
@@ -14,7 +14,7 @@ To build these NVIDIA Docker you can choose one of these options:
    * Xavier or Orin series
    * NVIDIA Jetpack 5.0+
 
-# Images available
+## Images available
 
 All images are based with:
 
@@ -36,7 +36,8 @@ Images:
 | `rbonghi/isaac_ros_base:gems-devel` | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/gems-devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/gems-devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | *Isaac ROS argus camera* is available **only** on ARM64 platform |
 | `rbonghi/isaac_ros_base:isaac-runtime`       | Soon   | Soon   |  |
 
-# Work with Isaac ROS base
+## Work with Isaac ROS base
+
 Example to build Isaac ROS packages multi-platform
 
 ```
@@ -44,11 +45,11 @@ cd example
 docker build -t isaac-ros-base/packages:latest -f Dockerfile.isaac .
 ```
 
-# Build
+## Build
 
 There are two ways to use this repository, build locally the isaac_ros_base images or use in CI, but you need to install a local runner on your desktop with NVIDIA graphic card.
 
-## Setup Docker runtime on Jetson
+### Setup Docker runtime on Jetson
 
 To enable access to the CUDA compiler (nvcc) during docker build operations, add `"default-runtime"`: `"nvidia"` to your `/etc/docker/daemon.json` configuration file before attempting to build the containers:
 
@@ -66,36 +67,37 @@ To enable access to the CUDA compiler (nvcc) during docker build operations, add
 
 You will then want to restart the Docker service or reboot your system before proceeding.
 
-```
+```bash
 sudo systemctl restart docker.service
 ```
 
 Add your user on your docker group
 
-```
+```bash
 sudo usermod -aG docker $USER
 ```
 
 *Logout* and login on your session.
 
-## Build locally
+### Build locally
 
 If you want to run locally use and follow the help:
 
-> **Warning**: 
+> **Warning**:
 > You can use this script only on:
->  * x86 machines with NVIDIA graphic card
->  * NVIDIA Jetson Orin or Xavier series
+>
+> * x86 machines with NVIDIA graphic card
+> * NVIDIA Jetson Orin or Xavier series
 
-```
+```bash
 ./docker_build_ros.sh
 ```
 
-## isaac_ros_runner
+### isaac_ros_runner
 
 Follow README in [isaac_ros_runner](isaac_ros_runner) folder
 
-## Multistage images
+### Multistage images
 
 | Name                                  | AMD64 | ARM64 |
 |---------------------------------------|:-----:|:-----:|
