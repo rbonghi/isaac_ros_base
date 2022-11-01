@@ -48,7 +48,7 @@ docker build -t isaac-ros-base/packages:latest -f Dockerfile.isaac .
 
 There are two ways to use this repository, build locally the isaac_ros_base images or use in CI, but you need to install a local runner on your desktop with NVIDIA graphic card.
 
-## Setup Docker runtime
+## Setup Docker runtime on Jetson
 
 To enable access to the CUDA compiler (nvcc) during docker build operations, add `"default-runtime"`: `"nvidia"` to your `/etc/docker/daemon.json` configuration file before attempting to build the containers:
 
@@ -65,6 +65,10 @@ To enable access to the CUDA compiler (nvcc) during docker build operations, add
 ```
 
 You will then want to restart the Docker service or reboot your system before proceeding.
+
+```
+sudo systemctl restart docker.service
+```
 
 Add your user on your docker group
 
