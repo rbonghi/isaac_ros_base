@@ -25,9 +25,9 @@
 - git:
     local-name: isaac_ros_pose_estimation
     uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_pose_estimation.git
-- git:
-    local-name: isaac_ros_mission_client
-    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_mission_client.git
+#- git:
+#    local-name: isaac_ros_mission_client
+#    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_mission_client.git
 - git:
     local-name: isaac_ros_image_segmentation
     uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_image_segmentation.git
@@ -37,6 +37,6 @@
 - git:
     local-name: isaac_ros_compression
     uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_compression.git
-- git:
-    local-name: isaac_ros_compression
-    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_compression.git
+#- git:
+#    local-name: isaac_ros_compression
+#    uri: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_compression.git
