@@ -96,9 +96,9 @@ RUN mkdir -p ${ISAAC_ROS_ROOT}/src \
     && vcs import ${ISAAC_ROS_ROOT}/src < /isaac_ros_all.rosinstall \
     && rm /isaac_ros_all.rosinstall \
     # Add Argus camera repo if on aarch64
-    && if [ "$(uname -m)" = "aarch64" ]; then \
-        git -C ${ISAAC_ROS_ROOT}/src clone https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_argus_camera.git ; \
-    fi \
+    #&& if [ "$(uname -m)" = "aarch64" ]; then \
+    #    git -C ${ISAAC_ROS_ROOT}/src clone https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_argus_camera.git ; \
+    #fi \
     # Install dependencies using rosdep
     # Load variable ROS2
     && . /opt/ros/$ROS_DISTRO/install/setup.sh \

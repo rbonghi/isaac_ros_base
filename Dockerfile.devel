@@ -94,6 +94,7 @@ RUN apt-get update \
     && apt-get clean
 
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/nvidia/vpi2/lib64"
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/cuda-11.4/targets/x86_64-linux/lib/stubs:/usr/local/cuda-11.4/targets/sbsa-linux/lib/stubs"
 
 ############ TAO converter #################################
 

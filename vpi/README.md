@@ -8,17 +8,23 @@ This test docker is made to check the VPI capabilities for a NVIDIA Jetpack
 Build
 
 ```bash
-docker build --build-arg L4T=35.1 -t vpi-test -f Dockerfile.vpi .
+docker build --build-arg L4T=35.1 -t rbonghi/isaac_ros_base:vpi-test -f Dockerfile.vpi .
 ```
 
 Should crash!
 
 ```bash
-docker build --build-arg L4T=35.1 --build-arg SKIP_MAKE=yes -t vpi-test-run -f Dockerfile.vpi  .
+docker build --build-arg L4T=35.1 --build-arg SKIP_MAKE=yes -t rbonghi/isaac_ros_base:vpi-test-run -f Dockerfile.vpi  .
 ```
 
 ## Jetpack 5.1
 
 ```bash
-docker build --build-arg L4T=35.2 -t vpi-test -f Dockerfile.vpi .
+docker build --build-arg L4T=35.2 -t rbonghi/isaac_ros_base:vpi-test -f Dockerfile.vpi .
+```
+
+## Test with buildx
+
+```bash
+docker buildx build --build-arg L4T=35.2 -t rbonghi/isaac_ros_base:vpi-test --platform linux/arm64,linux/amd64 --push -f Dockerfile.vpi .
 ```
