@@ -1,0 +1,44 @@
+FROM nvidia/cuda:11.4.1-devel-ubuntu20.04
+
+ARG L4T=35.1
+
+# Disable terminal interaction for apt
+ENV DEBIAN_FRONTEND=noninteractive
+ENV SHELL /bin/bash
+SHELL ["/bin/bash", "-c"]
+
+########### Sources and main Jetson repo ###################
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends software-properties-common \
+    && apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc \
+    && if [ "$(uname -m)" = "x86_64" ]; then \
+        # Adding sources for discrete NVIDIA GPU
+        add-apt-repository "deb http://repo.download.nvidia.com/jetson/x86_64/focal r${L4T} main"; \
+    else \
+        # Adding sources for NVIDIA Jetson
+        add-apt-repository "deb https://repo.download.nvidia.com/jetson/common r${L4T} main"; \
+    fi
+
+########### VPI ############################################
+
+RUN apt-get update \
+    && apt-get install -y \
+        libegl1 libnvvpi2 vpi2-dev vpi2-samples \
+        g++ cmake libopencv-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/nvidia/vpi2/lib64"
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/cuda-11.4/targets/x86_64-linux/lib/stubs:/usr/local/cuda-11.4/targets/sbsa-linux/lib/stubs"
+
+############################################################
+
+RUN cp -r /opt/nvidia/vpi2/samples /root/NVIDIA_VPI-2.1-samples
+
+WORKDIR /root/NVIDIA_VPI-2.1-samples/01-convolve_2d
+
+RUN cmake .
+
+ARG SKIP_MAKE
+RUN [ "${SKIP_MAKE}" != "" ] || make
