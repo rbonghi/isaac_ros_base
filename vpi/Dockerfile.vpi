@@ -34,9 +34,9 @@ ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/cuda-11.4/targets/x86_64-linu
 
 ############################################################
 
-RUN cp -r /opt/nvidia/vpi2/samples /root/NVIDIA_VPI-2.1-samples
+RUN cp -r /opt/nvidia/vpi2/samples /root/NVIDIA_VPI-samples
 
-WORKDIR /root/NVIDIA_VPI-2.1-samples/01-convolve_2d
+WORKDIR /root/NVIDIA_VPI-samples/01-convolve_2d
 
 RUN cmake .
 

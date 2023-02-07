@@ -2,7 +2,6 @@
 
 This test docker is made to check the VPI capabilities for a NVIDIA Jetpack
 
-
 ## Jetpack 5.0.2
 
 Build
