@@ -33,6 +33,7 @@ reset=`tput sgr0`
 
 docker_image_name=rbonghi/isaac-ros-base
 BASE_DIST=ubuntu20.04
+L4T=35.1
 CUDA_VERSION=11.4.1
 OPENCV_VERSION=4.5.0
 BUILD_BASE=devel
@@ -142,6 +143,10 @@ main()
             --amd64)
                 ARCH="amd64"
                 ;;
+            --l4t)
+                L4T=$1
+                shift 1
+                ;;
             --base)
                 BUILD_BASE=$3
                 shift 1
@@ -233,6 +238,7 @@ main()
         message_start $PUSH $CI_BUILD $TAG
         echo " - ${bold}OPENCV${reset} image"
         echo " - BASE_DIST=${green}$BASE_DIST${reset}"
+        echo " - L4T=${green}$L4T${reset}"
         echo " - CUDA_VERSION=${green}$CUDA_VERSION${reset}"
         echo " - OPENCV_VERSION=${green}$OPENCV_VERSION${reset}"
 
@@ -240,8 +246,9 @@ main()
             $push_value \
             $CI_OPTIONS \
             -t $docker_image_name:opencv-${OPENCV_VERSION} \
-            -t $docker_image_name:opencv-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST} \
+            -t $docker_image_name:opencv-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T} \
             --build-arg BASE_DIST="$BASE_DIST" \
+            --build-arg L4T="$L4T" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             --build-arg OPENCV_VERSION="$OPENCV_VERSION" \
             $multiarch_option \
@@ -254,6 +261,7 @@ main()
         message_start $PUSH $CI_BUILD $TAG
         echo " - ${bold}${option^^}${reset} image"
         echo " - BASE_DIST=${green}$BASE_DIST${reset}"
+        echo " - L4T=${green}$L4T${reset}"
         echo " - CUDA_VERSION=${green}$CUDA_VERSION${reset}"
         echo " - OPENCV_VERSION=${green}$OPENCV_VERSION${reset}"
 
@@ -261,8 +269,9 @@ main()
             $push_value \
             $CI_OPTIONS \
             -t $docker_image_name:$TAG \
-            -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST} \
+            -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T} \
             --build-arg BASE_DIST="$BASE_DIST" \
+            --build-arg L4T="$L4T" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             --build-arg OPENCV_VERSION="$OPENCV_VERSION" \
             $multiarch_option \
@@ -285,12 +294,13 @@ main()
         message_start $PUSH $CI_BUILD $TAG
         echo " - ${bold}HUMBLE ${green}${ROS_PKG^^}${reset} image"
         echo " - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
+        echo " - L4T=${green}$L4T${reset}"
 
         docker ${BUILDX} build \
             $push_value \
             $CI_OPTIONS \
             -t $docker_image_name:$TAG \
-            -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST} \
+            -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T} \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             $multiarch_option \
             -f Dockerfile.humble.$ROS_PKG \
@@ -305,12 +315,13 @@ main()
         message_start $PUSH $CI_BUILD $TAG
         echo " - ${bold}${option^^}${reset} image"
         echo " - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
+        echo " - L4T=${green}$L4T${reset}"
 
         docker ${BUILDX} build \
             $push_value \
             $CI_OPTIONS \
-            -t $docker_image_name:$TAG \
-            -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST} \
+            -t $docker_image_name:$TAG-$ARCH \
+            -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T} \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             $multiarch_option \
             -f Dockerfile.isaac \
