@@ -66,6 +66,7 @@ usage()
     echo " --multiarch                          Build in multiarch (ARM64 and AMD64)" >&2
     echo " --arm64                              Build for arm64 architecture" >&2
     echo " --amd64                              Build for x86_64 architecture" >&2
+    echo " --manifest                           Build and push a manifest to merge two architecture" >&2
 }
 
 message_start()
@@ -91,6 +92,7 @@ main()
     local PUSH=false
     local BUILDX=""
     local EXTRACT=false
+    local MANIFEST=false
     # Autoselect mode
     local ARCH=$(uname -i)
     if [ "$ARCH" == "x86_64" ] ; then
@@ -159,6 +161,9 @@ main()
                 ;;
             --extract)
                 EXTRACT=true
+                ;;
+            --manifest)
+                MANIFEST=true
                 ;;
             *)
                 usage "[ERROR] Unknown option: $2" >&2
@@ -316,12 +321,26 @@ main()
         echo " - ${bold}${option^^}${reset} image"
         echo " - BASE_IMAGE=${green}$BASE_IMAGE${reset}"
         echo " - L4T=${green}$L4T${reset}"
-
+        # Check to build a push a multiplatform manifest
+        if $MANIFEST ; then
+            echo "${green}Build and push manifest${reset}"
+            # Pull images
+            #docker pull $docker_image_name:$TAG-arm64
+            #docker pull $docker_image_name:$TAG-amd64
+            # Create a manifest
+            docker manifest create $docker_image_name:$TAG --amend $docker_image_name:$TAG-arm64 --amend $docker_image_name:$TAG-amd64
+            docker manifest annotate --arch arm64 $docker_image_name:$TAG $docker_image_name:$TAG-arm64
+            docker manifest annotate --arch amd64 $docker_image_name:$TAG $docker_image_name:$TAG-amd64
+            # Docker push manifest
+            docker manifest push $docker_image_name:$TAG
+            exit 0
+        fi
+        # Otherwise build the image
         docker ${BUILDX} build \
             $push_value \
             $CI_OPTIONS \
             -t $docker_image_name:$TAG-$ARCH \
-            -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T} \
+            -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T}-$ARCH \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
             $multiarch_option \
             -f Dockerfile.isaac \
