@@ -64,6 +64,7 @@ usage()
     echo " --ci                                 Run build in CI (without cash and pull a latest base image)" >&2
     echo " --base [NAME]                        Build from base image. Default: ${bold}$BUILD_BASE${reset}" >&2
     echo " --multiarch                          Build in multiarch (ARM64 and AMD64)" >&2
+    echo " --l4t                                Build with L4T Default: L4T=$L4T" >&2
     echo " --arm64                              Build for arm64 architecture" >&2
     echo " --amd64                              Build for x86_64 architecture" >&2
     echo " --manifest                           Build and push a manifest to merge two architecture" >&2
@@ -146,7 +147,7 @@ main()
                 ARCH="amd64"
                 ;;
             --l4t)
-                L4T=$1
+                L4T=$3
                 shift 1
                 ;;
             --base)
@@ -288,9 +289,9 @@ main()
         # Humble reference
         TAG="humble-$ROS_PKG-$BUILD_BASE"
         if [ $ROS_PKG = "core" ] ; then
-            BASE_IMAGE=$docker_image_name:$BUILD_BASE
+            BASE_IMAGE=$docker_image_name:$BUILD_BASE-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T}
         elif [ $ROS_PKG = "base" ] ; then
-            BASE_IMAGE=$docker_image_name:humble-core-$BUILD_BASE
+            BASE_IMAGE=$docker_image_name:humble-core-$BUILD_BASE-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T}
         else
             echo "${red}Error base image!${reset}"
             exit 1
@@ -315,7 +316,7 @@ main()
     elif [ $option = "gems" ] ; then
         # tag and image reference
         TAG="gems-$BUILD_BASE"
-        BASE_IMAGE=$docker_image_name:humble-base-$BUILD_BASE
+        BASE_IMAGE=$docker_image_name:humble-base-$BUILD_BASE-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T}
         #### Message #############
         message_start $PUSH $CI_BUILD $TAG
         echo " - ${bold}${option^^}${reset} image"
