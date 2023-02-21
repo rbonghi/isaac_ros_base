@@ -12,20 +12,19 @@ To build these NVIDIA Docker you can choose one of these options:
    * NVIDIA Graphic card
 2. **NVIDIA Jetson**
    * Xavier or Orin series
-   * NVIDIA Jetpack 5.0+
+   * NVIDIA Jetpack 5+
 
 ## Images available
 
 All images are based with:
 
-| Software | Version |
-|----------|:-------:|
-| Ubuntu   | 20.04   |
-| L4T      | 35.1    |
-| CUDA     | 11.4    |
-| OpenCV   | 4.5.0 with CUDA  |
-| TensorRT | 8.4     |
-| Triton   | 2.24.0  |
+| Software | Version JP=5.0.2 | Version JP=5.1   |
+|----------|:----------------:|:----------------:|
+| Ubuntu   | 20.04            | 20.04            |
+| CUDA     | 11.4             | 11.4             |
+| OpenCV   | 4.5.0 with CUDA  | 4.5.0 with CUDA  |
+| TensorRT | 8.4              | 8.4              |
+| Triton   | 2.24.0           | 2.30.0           |
 
 Images:
 

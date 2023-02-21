@@ -263,21 +263,44 @@ main()
         
         exit 0
     elif [ $option = "devel" ] || [ $option = "runtime" ] ; then
+
+        local TENSORRT_VERSION=8.4
+
+        local TRITON_VERSION=2.24.0
+        if [ $L4T == 35.2 ] ; then
+            TRITON_VERSION=2.30.0
+        fi
+        local L4T_MINOR_VERSION=1.0
+        if [ $L4T == 35.2 ] ; then
+            L4T_MINOR_VERSION=2.0
+        fi
+        local JETPACK=5.0.2
+        if [ $L4T == 35.2 ] ; then
+            JETPACK=5.1
+        fi
         #### DEVEL #############
         message_start $PUSH $CI_BUILD $TAG
         echo " - ${bold}${option^^}${reset} image"
         echo " - BASE_DIST=${green}$BASE_DIST${reset}"
         echo " - L4T=${green}$L4T${reset}"
+        echo " - L4T_MINOR_VERSION=${green}$L4T_MINOR_VERSION${reset}"
+        echo " - JETPACK=${green}$JETPACK${reset}"
         echo " - CUDA_VERSION=${green}$CUDA_VERSION${reset}"
         echo " - OPENCV_VERSION=${green}$OPENCV_VERSION${reset}"
+        echo " - TRITON_VERSION=${green}$TRITON_VERSION${reset}"
+        echo " - TENSORRT_VERSION=${green}$TENSORRT_VERSION${reset}"
 
         docker ${BUILDX} build \
             $push_value \
             $CI_OPTIONS \
             -t $docker_image_name:$TAG \
             -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T} \
+            --build-arg TENSORRT_VERSION="$TENSORRT_VERSION" \
+            --build-arg TRITON_VERSION="$TRITON_VERSION" \
             --build-arg BASE_DIST="$BASE_DIST" \
             --build-arg L4T="$L4T" \
+            --build-arg L4T_MINOR_VERSION="$L4T_MINOR_VERSION" \
+            --build-arg JETPACK="$JETPACK" \
             --build-arg CUDA_VERSION="$CUDA_VERSION" \
             --build-arg OPENCV_VERSION="$OPENCV_VERSION" \
             $multiarch_option \
@@ -337,13 +360,12 @@ main()
             exit 0
         fi
         # Otherwise build the image
-        docker ${BUILDX} build \
-            $push_value \
+        # Temporary disabled buildx, need fix VPI for x86 architecture
+        docker build \
             $CI_OPTIONS \
             -t $docker_image_name:$TAG-$ARCH \
             -t $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T}-$ARCH \
             --build-arg BASE_IMAGE="$BASE_IMAGE" \
-            $multiarch_option \
             -f Dockerfile.isaac \
             . || { echo "${red}docker build failure!${reset}"; exit 1; }
 

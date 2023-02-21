@@ -29,12 +29,12 @@ RUN cp /opt/opencv/build/OpenCV-*.tar.gz /OpenCV.tar.gz
 FROM nvidia/cuda:${CUDA_VERSION}-devel-${BASE_DIST}
 
 # L4T variables
-ARG JETPACK=5.1
-ARG L4T=35.2
-ARG L4T_MINOR_VERSION=2.0
+ARG JETPACK
+ARG L4T
+ARG L4T_MINOR_VERSION
 # NVIDIA software
-ARG TENSORRT_VERSION=8.4
-ARG TRITON_VERSION=2.30.0
+ARG TENSORRT_VERSION
+ARG TRITON_VERSION
 
 # Disable terminal interaction for apt
 ENV DEBIAN_FRONTEND=noninteractive
