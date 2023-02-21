@@ -31,8 +31,8 @@ Images:
 
 | Name                                  | AMD64 | ARM64 | Note | Build Time |
 |---------------------------------------|:-----:|:-----:|------|------|
-| `rbonghi/isaac_ros_base:humble-core-devel` | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-core-devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-core-devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | Minimal packages **ros-core** and all main package for vision compiled with CUDA | 2000s (L4T 35.1)<br/>2500s (L4T 35.2) |
-| `rbonghi/isaac_ros_base:humble-base-devel` | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-base-devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-base-devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |  | 16000s (L4T 35.1)<br/>Xs (L4T 35.2) |
+| `rbonghi/isaac_ros_base:humble-core-devel` | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-core-devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-core-devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | Minimal packages **ros-core** and all main package for vision compiled with CUDA | 16000s (L4T 35.1)<br/>Xs (L4T 35.2) |
+| `rbonghi/isaac_ros_base:humble-base-devel` | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-base-devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/humble-base-devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |  |  |
 | `rbonghi/isaac_ros_base:gems-devel` | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/gems-devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/gems-devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | *Isaac ROS argus camera* is available **only** on ARM64 platform |
 | `rbonghi/isaac_ros_base:isaac-runtime`       | Soon   | Soon   |  |
 
@@ -99,8 +99,8 @@ Follow README in [isaac_ros_runner](isaac_ros_runner) folder
 
 ### Multistage images
 
-| Name                                  | AMD64 | ARM64 |
-|---------------------------------------|:-----:|:-----:|
-| `rbonghi/isaac_ros_base:opencv-4.5.0`        | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/opencv-4.5.0?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/opencv-4.5.0?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |
-| `rbonghi/isaac_ros_base:devel`        | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |
-| `rbonghi/isaac_ros_base:runtime`      | Soon   | Soon   |
+| Name                                  | AMD64 | ARM64 | Build Time |
+|---------------------------------------|:-----:|:-----:|------------|
+| `rbonghi/isaac_ros_base:opencv-4.5.0`        | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/opencv-4.5.0?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/opencv-4.5.0?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | |
+| `rbonghi/isaac_ros_base:devel`        | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/devel?arch=amd64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) | [![Docker Image Size (tag)](https://img.shields.io/docker/image-size/rbonghi/isaac-ros-base/devel?arch=arm64)](https://hub.docker.com/r/rbonghi/isaac-ros-base) |  2000s (L4T 35.1)<br/>2500s (L4T 35.2) |
+| `rbonghi/isaac_ros_base:runtime`      | Soon   | Soon   | |
