@@ -2,7 +2,7 @@
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/rbonghi/isaac-ros-base)](https://hub.docker.com/r/rbonghi/isaac-ros-base) ![GitHub](https://img.shields.io/github/license/rbonghi/isaac_ros_base)
 
-Multi architecture cross compilable Isaac ROS for x86 and NVIDIA Jetson with **Jetpack 5.0+**
+Multi architecture cross compilable Isaac ROS for x86 and NVIDIA Jetson with **Jetpack 5+**
 
 ## Requirements
 
