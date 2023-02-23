@@ -355,8 +355,13 @@ main()
             docker manifest create $docker_image_name:$TAG --amend $docker_image_name:$TAG-arm64 --amend $docker_image_name:$TAG-amd64
             docker manifest annotate --arch arm64 $docker_image_name:$TAG $docker_image_name:$TAG-arm64
             docker manifest annotate --arch amd64 $docker_image_name:$TAG $docker_image_name:$TAG-amd64
+            # Create a manifest
+            docker manifest create $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T} --amend $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T}-arm64 --amend $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T}-amd64
+            docker manifest annotate --arch arm64 $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T} $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T}-arm64
+            docker manifest annotate --arch amd64 $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T} $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T}-amd64
             # Docker push manifest
             docker manifest push $docker_image_name:$TAG
+            docker manifest push $docker_image_name:$TAG-${OPENCV_VERSION}-cuda${CUDA_VERSION}-${BASE_DIST}-L4T${L4T}
             exit 0
         fi
         # Otherwise build the image
